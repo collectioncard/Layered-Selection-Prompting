@@ -6,13 +6,15 @@ class Node {
     Width: number;
     Height: number;
     Children: Node[];
+    LayerGrid: [number[], number[]];
 
-    constructor(Name: string = "", Coordinates: [number[], number[]] = [[],[]], Width: number = 0, Height: number = 0, Children: Node[] = []) {
+    constructor(Name: string = "", Coordinates: [number[], number[]] = [[],[]], Width: number = 0, Height: number = 0, LayerGrid: [number[], number[]] = [[],[]], Children: Node[] = []) {
         this.Name = Name;
         this.Coordinates = Coordinates;
         this.Width = Width;
         this.Height = Height;
         this.Children = Children;
+        this.LayerGrid = LayerGrid;
     }
 }
 
@@ -97,8 +99,8 @@ export class Tree {
     //      Height: height of layer
     //      parentName: name of the parent layer
     // returns nothing
-    add(layerName: string = "", Coordinates: [number[], number[]] = [[],[]], Width: number, Height: number) {
-        let newNode = new Node(layerName, Coordinates, Width, Height);
+    add(layerName: string = "", Coordinates: [number[], number[]] = [[],[]], Width: number, Height: number, LayerGrid: [number[], number[]]) {
+        let newNode = new Node(layerName, Coordinates, Width, Height, LayerGrid);
         let parentNode = this.suitableParentFind(Coordinates);
         if (parentNode != null) {
             parentNode.Children.push(newNode);
