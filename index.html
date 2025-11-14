@@ -23,9 +23,12 @@
         <div id="layer-tree" class="hidden"></div>
       </div>
     </div>
-    <div id="map">
+    <div id="mapStack">
+      <div id="map">
+        <button id="saveMap">Save Map Content</button>
+        <button id="loadMap">Load Map Content</button>
+      </div>
       <div id="tile-picker">
-        <!-- <div id="tile-picker"> -->
         <h3>Tile Palette</h3>
         <details>
           <summary>Background Tiles</summary>
@@ -461,10 +464,8 @@
           </div>
         </details>
       </div>
-      <button id="saveMap">Save Map Content</button>
-      <button id="loadMap">Load Map Content</button>
-      <!-- </div> -->
     </div>
+
     <div id="layer-context-menu">
       <ul>
         <li id="ctx-rename">✏️ Rename Layer</li>

@@ -16,7 +16,6 @@ import {
   ListLayersTool,
   NameLayerTool,
 } from "./phaser/tools/simpleTools/layerTools.ts";
-// import { MoveLayerTool } from './phaser/simpleTools/layerTools.ts';
 import { SelectLayerTool } from "./phaser/tools/simpleTools/layerTools.ts";
 import { RenameLayerTool } from "./phaser/tools/simpleTools/layerTools.ts";
 import { DeleteLayerTool } from "./phaser/tools/simpleTools/layerTools.ts";
