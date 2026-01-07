@@ -1,6 +1,6 @@
 import { tool } from "@langchain/core/tools";
 import { z } from "zod";
-import { TinyTownScene } from "../TinyTownScene";
+import { TinyTownScene } from "../../TinyTownScene.ts";
 
 //Names the current rectangular selection as a new layer.
 export class NameLayerTool {
@@ -14,37 +14,38 @@ export class NameLayerTool {
     async ({ name }: { name: string }) => {
       const scene = this.sceneGetter();
       scene.nameSelection(name);
-      window.dispatchEvent(
-        new CustomEvent('layerCreated', { detail: name })
-      );
+      window.dispatchEvent(new CustomEvent("layerCreated", { detail: name }));
       return `Layer "${name}" created.`;
     },
     {
       name: "name_layer",
       schema: z.object({
-        name: z.string().describe("The name to assign to the current selection"),
+        name: z
+          .string()
+          .describe("The name to assign to the current selection"),
       }),
       description: "Save the current selection under a named layer",
-    }
+    },
   );
 }
 
 export class SelectLayerTool {
-    constructor(private getScene: () => TinyTownScene) {}
-  
-    toolCall = tool(
-        async ({ layerName }: { layerName: string }) => {
-            this.getScene().selectLayer(layerName);
-            return `Layer "${layerName}" selected.`;
-        },
-        {
-            name: "select_layer",
-            schema: z.object({
-            layerName: z.string().describe("Name of the layer to re-select")
-            }),
-            description: "Re-select a previously named layer (draws its bounds and collects its tiles)"
-        }
-    );
+  constructor(private getScene: () => TinyTownScene) {}
+
+  toolCall = tool(
+    async ({ layerName }: { layerName: string }) => {
+      this.getScene().selectLayer(layerName);
+      return `Layer "${layerName}" selected.`;
+    },
+    {
+      name: "select_layer",
+      schema: z.object({
+        layerName: z.string().describe("Name of the layer to re-select"),
+      }),
+      description:
+        "Re-select a previously named layer (draws its bounds and collects its tiles)",
+    },
+  );
 }
 
 export class DeleteLayerTool {
@@ -61,7 +62,7 @@ export class DeleteLayerTool {
         layerName: z.string().describe("Name of the layer to delete"),
       }),
       description: "Delete a layer and all its sub-layers",
-    }
+    },
   );
 }
 
@@ -116,7 +117,7 @@ export class RenameLayerTool {
         newName: z.string().describe("New name for the layer"),
       }),
       description: "Rename an existing layer",
-    }
+    },
   );
 }
 
@@ -128,18 +129,19 @@ export class ListLayersTool {
       const scene = this.getScene();
       const layers = scene.namedLayers;
       let output = "Layers in the scene:\n";
-      
+
       for (const [name, info] of layers) {
         const { bounds } = info;
         output += `- ${name} (${bounds.width}x${bounds.height} at ${bounds.x},${bounds.y})\n`;
       }
-      
+
       return output;
     },
     {
       name: "list_layers",
       schema: z.object({}),
-      description: "List all layers in the scene with their dimensions and positions"
-    }
+      description:
+        "List all layers in the scene with their dimensions and positions",
+    },
   );
 }

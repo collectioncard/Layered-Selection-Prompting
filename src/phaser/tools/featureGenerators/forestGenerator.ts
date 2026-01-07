@@ -1,7 +1,11 @@
-import { completedSection, FeatureGenerator, generatorInput } from './GeneratorInterface';
+import {
+  completedSection,
+  FeatureGenerator,
+  generatorInput,
+} from "../IGenerator.ts";
 import { tool } from "@langchain/core/tools";
 import { z } from "zod";
-import { TinyTownScene } from '../TinyTownScene';
+import { TinyTownScene } from "../../TinyTownScene.ts";
 
 const TREE_CHANCE = 0.8;
 
@@ -74,27 +78,28 @@ export class ForestGenerator implements FeatureGenerator {
       schema: ForestGenerator.forestArgsSchema,
       description:
         "Adds a forest to the map. Optional args: x, y, width, height, mushrooms, yellowTrees, greenTrees.",
-    }
+    },
   );
 
   generate(
     mapSection: generatorInput,
-    args?: z.infer<typeof ForestGenerator.forestArgsSchema>
+    args?: z.infer<typeof ForestGenerator.forestArgsSchema>,
   ): completedSection {
     const grid = mapSection.grid;
     const width = args?.width ?? 0;
     const height = args?.height ?? 0;
     const xstrt = args?.x ?? 0;
     const ystrt = args?.y ?? 0;
-    console.log(grid)
+    console.log(grid);
 
     // Step 1: Generate base random forest
-    for (let y = ystrt; y < height+ystrt; y++) {
-      for (let x = xstrt; x < width+xstrt; x++) {
+    for (let y = ystrt; y < height + ystrt; y++) {
+      for (let x = xstrt; x < width + xstrt; x++) {
         if (grid[y][x] !== -1 || Math.random() > TREE_CHANCE) continue;
 
         const plantType = Phaser.Math.Between(0, 100);
-        const color: 'green' | 'yellow' = Math.random() < 0.5 ? 'green' : 'yellow';
+        const color: "green" | "yellow" =
+          Math.random() < 0.5 ? "green" : "yellow";
 
         if (plantType < 7) {
           grid[y][x] = Phaser.Utils.Array.GetRandom(TILE_TYPES.mushrooms);
@@ -140,8 +145,8 @@ export class ForestGenerator implements FeatureGenerator {
 
     // Step 2: Add specific elements over the random forest
     const placeables: { x: number; y: number }[] = [];
-    for (let y = ystrt; y < height+ystrt; y++) {
-      for (let x = xstrt; x < width+xstrt; x++) {
+    for (let y = ystrt; y < height + ystrt; y++) {
+      for (let x = xstrt; x < width + xstrt; x++) {
         if (grid[y][x] === -1) {
           placeables.push({ x, y });
         }
@@ -162,7 +167,7 @@ export class ForestGenerator implements FeatureGenerator {
     placeOne(TILE_TYPES.trees.single.green[0], args?.greenTrees ?? 0);
 
     return {
-      name: 'forest',
+      name: "forest",
       description: `A ${width}x${height} forest with custom elements`,
       grid,
       points_of_interest: new Map(),

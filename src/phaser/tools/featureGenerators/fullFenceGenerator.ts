@@ -1,13 +1,17 @@
-import { completedSection, FeatureGenerator, generatorInput } from './GeneratorInterface';
+import {
+  completedSection,
+  FeatureGenerator,
+  generatorInput,
+} from "../IGenerator.ts";
 import { tool } from "@langchain/core/tools";
 import { z } from "zod";
-import { TinyTownScene } from '../TinyTownScene';
+import { TinyTownScene } from "../../TinyTownScene.ts";
 
 const PADDING = 1;
-var fenceX = 0; 
-var fenceY = 0; 
-var width = 0; 
-var height = 0; 
+var fenceX = 0;
+var fenceY = 0;
+var width = 0;
+var height = 0;
 const tileIDs: Record<number, number> = {
   0b1100: 44, // Top-left
   0b0110: 46, // Top-right
@@ -44,7 +48,16 @@ export class FullFenceGenerator implements FeatureGenerator {
 
       try {
         await scene.putFeatureAtSelection(this.generate(selection, args));
-        return "Fence added successfully. It starts at" + fenceX + "," + fenceY + ". It has a with width: " + width + " and height: " + height;
+        return (
+          "Fence added successfully. It starts at" +
+          fenceX +
+          "," +
+          fenceY +
+          ". It has a with width: " +
+          width +
+          " and height: " +
+          height
+        );
       } catch (e) {
         console.error("putFeatureAtSelection failed:", e);
         return `Failed to place fence`;
@@ -53,26 +66,26 @@ export class FullFenceGenerator implements FeatureGenerator {
     {
       name: "fence",
       schema: fenceArgsSchema,
-      description: "Adds a complete fence around an area. Accepts optional width and height.",
-    }
+      description:
+        "Adds a complete fence around an area. Accepts optional width and height.",
+    },
   );
 
-  generate(mapSection: generatorInput, args?: z.infer<typeof fenceArgsSchema>): completedSection {
+  generate(
+    mapSection: generatorInput,
+    args?: z.infer<typeof fenceArgsSchema>,
+  ): completedSection {
     const grid: number[][] = Array.from({ length: mapSection.height }, () =>
-      Array(mapSection.width).fill(-1)
+      Array(mapSection.width).fill(-1),
     );
 
-    width = args?.width ?? Phaser.Math.Between(3, mapSection.width - PADDING * 2);
-    height = args?.height ?? Phaser.Math.Between(3, mapSection.height - PADDING * 2);
+    width =
+      args?.width ?? Phaser.Math.Between(3, mapSection.width - PADDING * 2);
+    height =
+      args?.height ?? Phaser.Math.Between(3, mapSection.height - PADDING * 2);
 
-    fenceX = Phaser.Math.Between(
-      PADDING,
-      mapSection.width - width - PADDING
-    );
-    fenceY = Phaser.Math.Between(
-      PADDING,
-      mapSection.height - height - PADDING
-    );
+    fenceX = Phaser.Math.Between(PADDING, mapSection.width - width - PADDING);
+    fenceY = Phaser.Math.Between(PADDING, mapSection.height - height - PADDING);
 
     for (let y = fenceY; y < fenceY + height; y++) {
       for (let x = fenceX; x < fenceX + width; x++) {
@@ -94,7 +107,7 @@ export class FullFenceGenerator implements FeatureGenerator {
     grid[gateY][gateX] = 69;
 
     return {
-      name: 'fence',
+      name: "fence",
       description: `A ${width}x${height} fence`,
       grid,
       points_of_interest: new Map(),

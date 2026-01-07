@@ -7,11 +7,15 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "process-assets": "tile-extruder --tileWidth 16 --tileHeight 16 --margin 0 --spacing 0 --input ./phaserAssets/Tilemap_Packed.png --output ./phaserAssets/Tilemap_Extruded.png"
+    "process-assets": "tile-extruder --tileWidth 16 --tileHeight 16 --margin 0 --spacing 0 --input ./phaserAssets/Tilemap_Packed.png --output ./phaserAssets/Tilemap_Extruded.png",
+    "prepare": "husky"
   },
   "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.2",
+    "prettier": "^3.6.0",
     "typescript": "~5.7.2",
-    "vite": "^6.2.0"
+    "vite": "7.1.11"
   },
   "dependencies": {
     "@langchain/core": "^0.3.44",
@@ -21,5 +25,8 @@
     "marked": "^15.0.8",
     "phaser": "^3.88.2",
     "zod": "^3.24.2"
+  },
+  "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown"
   }
 }

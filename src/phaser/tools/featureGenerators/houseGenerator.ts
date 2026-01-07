@@ -1,56 +1,20 @@
-import { FeatureGenerator, completedSection, generatorInput } from './GeneratorInterface';
+import {
+  FeatureGenerator,
+  completedSection,
+  generatorInput,
+} from "../IGenerator.ts";
 import { tool } from "@langchain/core/tools";
 import { z } from "zod";
-import { TinyTownScene } from '../TinyTownScene';
+import { TinyTownScene } from "../../TinyTownScene.ts";
 
 const MIN_HOUSE_WIDTH = 3;
 const MIN_HOUSE_HEIGHT = 3;
 const BORDER_PADDING = 1;
 
-var lastHouseX = 0; // Global variable to store the house X position
-var lastHouseY = 0; // Global variable to store the house Y position
-var lastHouseWidth = 0; // Global variable to store the house X position
-var lastHouseHeight = 0; // Global variable to store the house Y position
-
-const HOUSE_TILES = {
-  // Roofs
-  48: 'grey roof tile',
-  49: 'grey roof tile',
-  50: 'grey roof tile',
-  51: 'grey roof chimney',
-  60: 'grey roof tile',
-  61: 'grey roof tile',
-  62: 'grey roof tile',
-  63: 'grey roof pointed',
-  52: 'red roof left edge',
-  53: 'red roof middle',
-  54: 'red roof right edge',
-  55: 'red roof chimney',
-  64: 'red roof bottom left',
-  65: 'red roof bottom middle',
-  66: 'red roof bottom right',
-  67: 'red roof pointed',
-
-  // Brown house
-  72: 'brown house left wall',
-  73: 'brown house middle wall',
-  74: 'brown house entrance',
-  75: 'brown house right wall',
-  84: 'brown house window',
-  85: 'brown house single door',
-  86: 'brown house double door left',
-  87: 'brown house double door right',
-
-  // Grey house
-  76: 'grey house left wall',
-  77: 'grey house middle wall',
-  78: 'grey house entrance',
-  79: 'grey house right wall',
-  88: 'grey house window',
-  89: 'grey house single door',
-  90: 'grey house double door left',
-  91: 'grey house double door right',
-};
+let lastHouseX = 0; // Global variable to store the house X position
+let lastHouseY = 0; // Global variable to store the house Y position
+let lastHouseWidth = 0; // Global variable to store the house X position
+let lastHouseHeight = 0; // Global variable to store the house Y position
 
 let points_of_interest = new Map();
 
@@ -74,14 +38,24 @@ export class HouseGenerator implements FeatureGenerator {
 
   toolCall = tool(
     async (args: z.infer<typeof HouseGenerator.houseArgsSchema>) => {
-      console.log('Generating house with args:', args);
+      console.log("Generating house with args:", args);
       const scene = this.sceneGetter();
       if (!scene) return "Tool Failed: No reference to scene.";
       const selection = scene.getSelection();
-      var tmp = this.generate(selection, args)
+      var tmp = this.generate(selection, args);
       try {
         await scene.putFeatureAtSelection(tmp);
-        return "House added. at: (" + lastHouseX + ", " + lastHouseY + "). the connection point is at: (" + (lastHouseX+Math.floor(lastHouseWidth/2)) + ", " + (lastHouseY+lastHouseHeight)+").";
+        return (
+          "House added. at: (" +
+          lastHouseX +
+          ", " +
+          lastHouseY +
+          "). the connection point is at: (" +
+          (lastHouseX + Math.floor(lastHouseWidth / 2)) +
+          ", " +
+          (lastHouseY + lastHouseHeight) +
+          ")."
+        );
       } catch (e) {
         console.error("putFeatureAtSelection failed:", e);
         return `Failed to place house`;
@@ -90,30 +64,54 @@ export class HouseGenerator implements FeatureGenerator {
     {
       name: "house",
       schema: HouseGenerator.houseArgsSchema,
-      description: "Adds a house to the map. Supports style, roof, width, height, door count, and window count.",
-    }
+      description:
+        "Adds a house to the map. Supports style, roof, width, height, door count, and window count.",
+    },
   );
 
-  generate(mapSection: generatorInput, args?: z.infer<typeof HouseGenerator.houseArgsSchema>): completedSection {
+  generate(
+    mapSection: generatorInput,
+    args?: z.infer<typeof HouseGenerator.houseArgsSchema>,
+  ): completedSection {
     const grid = mapSection.grid;
-    console.log(grid)
-    const houseWidth = args?.width ?? Phaser.Math.Between(MIN_HOUSE_WIDTH, mapSection.width - BORDER_PADDING * 2);
-    const houseHeight = args?.height ?? Phaser.Math.Between(MIN_HOUSE_HEIGHT, mapSection.height - BORDER_PADDING * 2);
-    const houseX = args?.x ?? Phaser.Math.Between(BORDER_PADDING, mapSection.width - houseWidth - BORDER_PADDING);
-    const houseY = args?.y ?? Phaser.Math.Between(BORDER_PADDING, mapSection.height - houseHeight - BORDER_PADDING);
+    console.log(grid);
+    const houseWidth =
+      args?.width ??
+      Phaser.Math.Between(
+        MIN_HOUSE_WIDTH,
+        mapSection.width - BORDER_PADDING * 2,
+      );
+    const houseHeight =
+      args?.height ??
+      Phaser.Math.Between(
+        MIN_HOUSE_HEIGHT,
+        mapSection.height - BORDER_PADDING * 2,
+      );
+    const houseX =
+      args?.x ??
+      Phaser.Math.Between(
+        BORDER_PADDING,
+        mapSection.width - houseWidth - BORDER_PADDING,
+      );
+    const houseY =
+      args?.y ??
+      Phaser.Math.Between(
+        BORDER_PADDING,
+        mapSection.height - houseHeight - BORDER_PADDING,
+      );
     lastHouseX = houseX; // Store the last house X position
     lastHouseY = houseY; // Store the last house Y position
     lastHouseWidth = houseWidth; // Store the last house X position
     lastHouseHeight = houseHeight; // Store the last house Y position
     // Determine style
     let wallTextureOffset: -4 | 0 = Math.random() < 0.5 ? -4 : 0;
-    if (args?.style === 'brown') wallTextureOffset = -4;
-    if (args?.style === 'grey') wallTextureOffset = 0;
+    if (args?.style === "brown") wallTextureOffset = -4;
+    if (args?.style === "grey") wallTextureOffset = 0;
 
     // Determine roof based on style
     let isRedRoof: boolean;
     if (args?.roof) {
-      isRedRoof = args.roof === 'red';
+      isRedRoof = args.roof === "red";
     } else {
       // Default rule: brown house -> grey roof, grey house -> red roof
       isRedRoof = wallTextureOffset === 0;
@@ -137,7 +135,7 @@ export class HouseGenerator implements FeatureGenerator {
 
     // --- Wall + Window Logic ---
     const windowCount = args?.windowCount ?? 0;
-    const wallTiles: { x: number, y: number }[] = [];
+    const wallTiles: { x: number; y: number }[] = [];
 
     for (y = houseY + 2; y < houseY + houseHeight; y++) {
       grid[y][houseX] = 76 + wallTextureOffset;
@@ -152,7 +150,7 @@ export class HouseGenerator implements FeatureGenerator {
     const windowTiles = shuffledWallTiles.slice(0, windowCount);
 
     for (const { x, y } of wallTiles) {
-      const isWindow = windowTiles.some(tile => tile.x === x && tile.y === y);
+      const isWindow = windowTiles.some((tile) => tile.x === x && tile.y === y);
       grid[y][x] = isWindow ? 88 + wallTextureOffset : 77 + wallTextureOffset;
     }
 
@@ -163,22 +161,31 @@ export class HouseGenerator implements FeatureGenerator {
       possibleDoorXPositions.push(x);
     }
 
-    const shuffledDoors = Phaser.Utils.Array.Shuffle(possibleDoorXPositions).slice(0, doorCount);
+    const shuffledDoors = Phaser.Utils.Array.Shuffle(
+      possibleDoorXPositions,
+    ).slice(0, doorCount);
 
     shuffledDoors.forEach((doorX, index) => {
       grid[houseY + houseHeight - 1][doorX] = 89 + wallTextureOffset;
 
       const awningY = houseY + 1;
-      if (![77 + wallTextureOffset, 79 + wallTextureOffset].includes(grid[awningY][doorX])) {
+      if (
+        ![77 + wallTextureOffset, 79 + wallTextureOffset].includes(
+          grid[awningY][doorX],
+        )
+      ) {
         grid[awningY][doorX] = 67 + roofTextureOffset;
       }
 
-      points_of_interest.set(`door${index + 1}`, { x: doorX, y: houseY + houseHeight - 1 });
+      points_of_interest.set(`door${index + 1}`, {
+        x: doorX,
+        y: houseY + houseHeight - 1,
+      });
     });
 
     return {
-      name: 'House',
-      description: `${args?.style ?? 'A'} house with a ${isRedRoof ? 'red' : 'grey'} roof, ${doorCount} door(s), and ${windowCount} window(s)`,
+      name: "House",
+      description: `${args?.style ?? "A"} house with a ${isRedRoof ? "red" : "grey"} roof, ${doorCount} door(s), and ${windowCount} window(s)`,
       grid,
       points_of_interest,
     };

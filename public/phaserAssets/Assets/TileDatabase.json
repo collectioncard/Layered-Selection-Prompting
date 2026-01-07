@@ -3,135 +3,474 @@
     { "TileID": -1, "Description": "Nothingness" },
     { "TileID": 0, "Description": "Grass tile with no visible grass." },
     { "TileID": 1, "Description": "Grass tile with visible grass." },
-    { "TileID": 2, "Description": "Grass tile with visible grass and flowers." },
-    { "TileID": 3, "Description": "Top section of a yellow tree that is used in conjunction with Tile 15." },
-    { "TileID": 4, "Description": "Top section of a green tree that is used in conjunction with Tile 16." },
+    {
+      "TileID": 2,
+      "Description": "Grass tile with visible grass and flowers."
+    },
+    {
+      "TileID": 3,
+      "Description": "Top section of a yellow tree that is used in conjunction with Tile 15."
+    },
+    {
+      "TileID": 4,
+      "Description": "Top section of a green tree that is used in conjunction with Tile 16."
+    },
     { "TileID": 5, "Description": "A small green bush." },
-    { "TileID": 6, "Description": "Top left section of a group of 4 green trees. This tile has to be used with tile 8, tile 30, and tile 32." },
-    { "TileID": 7, "Description": "Top section of a group of 4 green trees. This tile has to be used with tile 18, tile 19, tile 20, and tile 31." },
-    { "TileID": 8, "Description": "Top right section of a group of 4 green trees. This tile has to be used with tile 6, tile 30, and tile 32." },
-    { "TileID": 9, "Description": "Top left section of a group of 4 yellow trees. This tile has to be used with tile 11, tile 33, and tile 35." },
-    { "TileID": 10, "Description": "Top section of a group of 4 yellow trees. This tile has to be used with tile 21, tile 22, tile 23, and tile 34." },
-    { "TileID": 11, "Description": "Top right section of a group of 4 yellow trees. This tile has to be used with tile 9, tile 33, and tile 35." },
+    {
+      "TileID": 6,
+      "Description": "Top left section of a group of 4 green trees. This tile has to be used with tile 8, tile 30, and tile 32."
+    },
+    {
+      "TileID": 7,
+      "Description": "Top section of a group of 4 green trees. This tile has to be used with tile 18, tile 19, tile 20, and tile 31."
+    },
+    {
+      "TileID": 8,
+      "Description": "Top right section of a group of 4 green trees. This tile has to be used with tile 6, tile 30, and tile 32."
+    },
+    {
+      "TileID": 9,
+      "Description": "Top left section of a group of 4 yellow trees. This tile has to be used with tile 11, tile 33, and tile 35."
+    },
+    {
+      "TileID": 10,
+      "Description": "Top section of a group of 4 yellow trees. This tile has to be used with tile 21, tile 22, tile 23, and tile 34."
+    },
+    {
+      "TileID": 11,
+      "Description": "Top right section of a group of 4 yellow trees. This tile has to be used with tile 9, tile 33, and tile 35."
+    },
     { "TileID": 12, "Description": "Top-left corner dirt tile with grass." },
     { "TileID": 13, "Description": "Top-middle corner dirt tile with grass." },
     { "TileID": 14, "Description": "Top-right corner dirt tile with grass." },
-    { "TileID": 15, "Description": "Bottom section of a yellow tree that has to be used in conjunction with Tile 3" },
-    { "TileID": 16, "Description": "Bottom section of a green tree that is used in conjunction with Tile 4" },
-    { "TileID": 17, "Description": "A small green plant, consisting of 2 droopy stalks." },
-    { "TileID": 18, "Description": "Left section of a group of 4 green trees. This tile has to be used with tile 7, tile 19, tile 20, and tile 31." },
-    { "TileID": 19, "Description": "Middle section of a group of 4 green trees. This tile has to be used with tile 7, tile 18, tile 20, and tile 31." },
-    { "TileID": 20, "Description": "Right section of a group of 4 green trees. This tile has to be used with tile 7, tile 18, tile 19, and tile 31." },
-    { "TileID": 21, "Description": "Right section of a group of 4 yellow trees. This tile has to be used with tile 10, tile 22, tile 23, and tile 34." },
-    { "TileID": 22, "Description": "Middle section of a group of 4 yellow trees. This tile has to be used with tile 10, tile 21, tile 23, and tile 34." },
-    { "TileID": 23, "Description": "Right section of a group of 4 yellow trees. This tile has to be used with tile 10, tile 21, tile 22, and tile 34." },
+    {
+      "TileID": 15,
+      "Description": "Bottom section of a yellow tree that has to be used in conjunction with Tile 3"
+    },
+    {
+      "TileID": 16,
+      "Description": "Bottom section of a green tree that is used in conjunction with Tile 4"
+    },
+    {
+      "TileID": 17,
+      "Description": "A small green plant, consisting of 2 droopy stalks."
+    },
+    {
+      "TileID": 18,
+      "Description": "Left section of a group of 4 green trees. This tile has to be used with tile 7, tile 19, tile 20, and tile 31."
+    },
+    {
+      "TileID": 19,
+      "Description": "Middle section of a group of 4 green trees. This tile has to be used with tile 7, tile 18, tile 20, and tile 31."
+    },
+    {
+      "TileID": 20,
+      "Description": "Right section of a group of 4 green trees. This tile has to be used with tile 7, tile 18, tile 19, and tile 31."
+    },
+    {
+      "TileID": 21,
+      "Description": "Right section of a group of 4 yellow trees. This tile has to be used with tile 10, tile 22, tile 23, and tile 34."
+    },
+    {
+      "TileID": 22,
+      "Description": "Middle section of a group of 4 yellow trees. This tile has to be used with tile 10, tile 21, tile 23, and tile 34."
+    },
+    {
+      "TileID": 23,
+      "Description": "Right section of a group of 4 yellow trees. This tile has to be used with tile 10, tile 21, tile 22, and tile 34."
+    },
     { "TileID": 24, "Description": "Center-left edge dirt tile with grass" },
     { "TileID": 25, "Description": "Center dirt tile with no grass" },
     { "TileID": 26, "Description": "Center-right edge dirt tile with grass" },
     { "TileID": 27, "Description": "A small yellow tree." },
     { "TileID": 28, "Description": "A small green tree." },
-    { "TileID": 29, "Description": "A set of two small mushrooms. The two mushrooms are both red with white dots." },
-    { "TileID": 30, "Description": "Bottom left section of a group of 4 green trees. This tile has to be used with tile 6, tile 8, and tile 32." },
-    { "TileID": 31, "Description": "Bottom section of a group of 4 green trees. This tile has to be used with tile 7, tile 18, tile 19, and tile 20." },
-    { "TileID": 32, "Description": "Bottom right section of a group of 4 green trees. This tile has to be used with tile 6, tile 8, and tile 30." },
-    { "TileID": 33, "Description": "Bottom left section of a group of 4 yellow trees. This tile has to be used with tile 9, tile 11, and tile 35." },
-    { "TileID": 34, "Description": "Bottom section of a group of 4 yellow trees. This tile has to be used with tile 10, tile 21, tile 22, and tile 23." },
-    { "TileID": 35, "Description": "Bottom right section of a group of 4 yellow trees. This tile has to be used with tile 9, tile 11, and tile 33." },
+    {
+      "TileID": 29,
+      "Description": "A set of two small mushrooms. The two mushrooms are both red with white dots."
+    },
+    {
+      "TileID": 30,
+      "Description": "Bottom left section of a group of 4 green trees. This tile has to be used with tile 6, tile 8, and tile 32."
+    },
+    {
+      "TileID": 31,
+      "Description": "Bottom section of a group of 4 green trees. This tile has to be used with tile 7, tile 18, tile 19, and tile 20."
+    },
+    {
+      "TileID": 32,
+      "Description": "Bottom right section of a group of 4 green trees. This tile has to be used with tile 6, tile 8, and tile 30."
+    },
+    {
+      "TileID": 33,
+      "Description": "Bottom left section of a group of 4 yellow trees. This tile has to be used with tile 9, tile 11, and tile 35."
+    },
+    {
+      "TileID": 34,
+      "Description": "Bottom section of a group of 4 yellow trees. This tile has to be used with tile 10, tile 21, tile 22, and tile 23."
+    },
+    {
+      "TileID": 35,
+      "Description": "Bottom right section of a group of 4 yellow trees. This tile has to be used with tile 9, tile 11, and tile 33."
+    },
     { "TileID": 36, "Description": "Bottom-left corner dirt tile with grass" },
-    { "TileID": 37, "Description": "Bottom-middle corner dirt tile with grass" },
+    {
+      "TileID": 37,
+      "Description": "Bottom-middle corner dirt tile with grass"
+    },
     { "TileID": 38, "Description": "Bottom-right corner dirt tile with grass" },
-    { "TileID": 39, "Description": "A brown, dirt path tile which can be used to connect with tile 40, 41, or 42." },
-    { "TileID": 40, "Description": "A brown, dirt path tile with a little grass on the top right which can be used to connect with tiles 39, 41, or 42." },
-    { "TileID": 41, "Description": "A brown, dirt path tile with a little grass on the bottom right which can be used to connect with tile 39, 40, or 42." },
-    { "TileID": 42, "Description": "A brown, dirt path tile with a little grass on the bottom left which can be used to connect with tile 39, 40, or 41." },
-    { "TileID": 43, "Description": "A stone path tile that can be used with itself to create paths. The tile consists of stones surrounded by grass." },
-    { "TileID": 44, "Description": "Top left corner for a fenced-in area. Will most likely be connected with tile 45 on the right and tile 56 below." },
-    { "TileID": 45, "Description": "Top middle edge for a fenced-in area. Will most likely be connected with tile 44 on the left and tile 46 on the right." },
-    { "TileID": 46, "Description": "Top right corner for a fenced-in area. Will most likely be connected with tile 45 on the left and tile 58 below." },
-    { "TileID": 47, "Description": "The top-most part of a vertical fence line. Tile 59 will likely be connected to it to make the fence longer or tile 71 for a very short fence." },
-    { "TileID": 48, "Description": "A gray roof tile for a house. Is usually the top left corner of a house's roof." },
-    { "TileID": 49, "Description": "A gray roof tile for a house. Is usually one of the middle parts of the top edge of a house's roof." },
-    { "TileID": 50, "Description": "A gray roof tile for a house. Is usually the top right corner of a house's roof." },
-    { "TileID": 51, "Description": "A gray chimney tile that will usually be used in conjunctions with the gray roof tiles (i.e. tile 48, 49, or 50)." },
-    { "TileID": 52, "Description": "A red roof tile for a house. Is usually the top left corner of a house's roof." },
-    { "TileID": 53, "Description": "A red roof tile for a house. Is usually one of the middle parts of the top edge of a house's roof." },
-    { "TileID": 54, "Description": "A red roof tile for a house. Is usually the top right corner of a house's roof." },
-    { "TileID": 55, "Description": "A red chimney tile that will usually be used in conjunctions with the gray roof tiles (i.e. tile 52, 53, or 54)." },
-    { "TileID": 56, "Description": "Connections piece for the middle of the left edge of a fenced-in area. Will most likely be connected with other tile 56s or tile 44 on the top and tile 68 on the bottom." },
+    {
+      "TileID": 39,
+      "Description": "A brown, dirt path tile which can be used to connect with tile 40, 41, or 42."
+    },
+    {
+      "TileID": 40,
+      "Description": "A brown, dirt path tile with a little grass on the top right which can be used to connect with tiles 39, 41, or 42."
+    },
+    {
+      "TileID": 41,
+      "Description": "A brown, dirt path tile with a little grass on the bottom right which can be used to connect with tile 39, 40, or 42."
+    },
+    {
+      "TileID": 42,
+      "Description": "A brown, dirt path tile with a little grass on the bottom left which can be used to connect with tile 39, 40, or 41."
+    },
+    {
+      "TileID": 43,
+      "Description": "A stone path tile that can be used with itself to create paths. The tile consists of stones surrounded by grass."
+    },
+    {
+      "TileID": 44,
+      "Description": "Top left corner for a fenced-in area. Will most likely be connected with tile 45 on the right and tile 56 below."
+    },
+    {
+      "TileID": 45,
+      "Description": "Top middle edge for a fenced-in area. Will most likely be connected with tile 44 on the left and tile 46 on the right."
+    },
+    {
+      "TileID": 46,
+      "Description": "Top right corner for a fenced-in area. Will most likely be connected with tile 45 on the left and tile 58 below."
+    },
+    {
+      "TileID": 47,
+      "Description": "The top-most part of a vertical fence line. Tile 59 will likely be connected to it to make the fence longer or tile 71 for a very short fence."
+    },
+    {
+      "TileID": 48,
+      "Description": "A gray roof tile for a house. Is usually the top left corner of a house's roof."
+    },
+    {
+      "TileID": 49,
+      "Description": "A gray roof tile for a house. Is usually one of the middle parts of the top edge of a house's roof."
+    },
+    {
+      "TileID": 50,
+      "Description": "A gray roof tile for a house. Is usually the top right corner of a house's roof."
+    },
+    {
+      "TileID": 51,
+      "Description": "A gray chimney tile that will usually be used in conjunctions with the gray roof tiles (i.e. tile 48, 49, or 50)."
+    },
+    {
+      "TileID": 52,
+      "Description": "A red roof tile for a house. Is usually the top left corner of a house's roof."
+    },
+    {
+      "TileID": 53,
+      "Description": "A red roof tile for a house. Is usually one of the middle parts of the top edge of a house's roof."
+    },
+    {
+      "TileID": 54,
+      "Description": "A red roof tile for a house. Is usually the top right corner of a house's roof."
+    },
+    {
+      "TileID": 55,
+      "Description": "A red chimney tile that will usually be used in conjunctions with the gray roof tiles (i.e. tile 52, 53, or 54)."
+    },
+    {
+      "TileID": 56,
+      "Description": "Connections piece for the middle of the left edge of a fenced-in area. Will most likely be connected with other tile 56s or tile 44 on the top and tile 68 on the bottom."
+    },
     { "TileID": 57, "Description": "A single wheelbarrow." },
-    { "TileID": 58, "Description": "Connection piece for the middle of the right edge of a fenced-in area. Will most likely be connected with other tile 58s or tile 46 on the top and tile 70 on the bottom." },
-    { "TileID": 59, "Description": "The middle section of a vertical fence line. Tile 59 will likely be connected to other tile 59s to extend the fence, or tile 47 on top or tile 71 on the bottom." },
-    { "TileID": 60, "Description": "A gray roof tile for a house. Will usually be the bottom edge of the house." },
-    { "TileID": 61, "Description": "A gray roof tile for a house. Will usually be the bottom edge of the house." },
-    { "TileID": 62, "Description": "A gray roof tile for a house. Will usually be the bottom edge of the house." },
+    {
+      "TileID": 58,
+      "Description": "Connection piece for the middle of the right edge of a fenced-in area. Will most likely be connected with other tile 58s or tile 46 on the top and tile 70 on the bottom."
+    },
+    {
+      "TileID": 59,
+      "Description": "The middle section of a vertical fence line. Tile 59 will likely be connected to other tile 59s to extend the fence, or tile 47 on top or tile 71 on the bottom."
+    },
+    {
+      "TileID": 60,
+      "Description": "A gray roof tile for a house. Will usually be the bottom edge of the house."
+    },
+    {
+      "TileID": 61,
+      "Description": "A gray roof tile for a house. Will usually be the bottom edge of the house."
+    },
+    {
+      "TileID": 62,
+      "Description": "A gray roof tile for a house. Will usually be the bottom edge of the house."
+    },
     { "TileID": 63, "Description": "A arched gray roof tile." },
-    { "TileID": 64, "Description": "A red roof tile for a house. Will usually be the bottom edge of the house." },
-    { "TileID": 65, "Description": "A red roof tile for a house. Will usually be the bottom edge of the house." },
-    { "TileID": 66, "Description": "A red roof tile for a house. Will usually be the bottom edge of the house." },
+    {
+      "TileID": 64,
+      "Description": "A red roof tile for a house. Will usually be the bottom edge of the house."
+    },
+    {
+      "TileID": 65,
+      "Description": "A red roof tile for a house. Will usually be the bottom edge of the house."
+    },
+    {
+      "TileID": 66,
+      "Description": "A red roof tile for a house. Will usually be the bottom edge of the house."
+    },
     { "TileID": 67, "Description": "A arched red roof tile." },
-    { "TileID": 68, "Description": "Bottom left corner for a fenced-in area. Will most likely be connected with tile 69 on the right and tile 56 above." },
-    { "TileID": 69, "Description": "A fence tile that connects with the left and the right, but has an opening in the middle. Will usually be used as an entrance or opening for a fenced-in area." },
-    { "TileID": 70, "Description": "Bottom right corner for a fenced-in area. Will most likely be connected with tile 69 on the left and tile 58 above." },
-    { "TileID": 71, "Description": "The bottom-most part of a vertical fence line. Tile 59 will likely be connected to it to make the fence longer or tile 47 for a very short fence." },
-    { "TileID": 72, "Description": "A brown house tile. Is part of a house's wall." },
-    { "TileID": 73, "Description": "A brown house tile. Is part of a house's wall." },
-    { "TileID": 74, "Description": "A brown house tile. Is an opening without a door. Can sometimes be replaced with a door tile (tile 83)." },
-    { "TileID": 75, "Description": "A brown house tile. Is part of a house's wall." },
-    { "TileID": 76, "Description": "A gray house tile. Is part of a house's wall." },
-    { "TileID": 77, "Description": "A gray house tile. Is part of a house's wall." },
-    { "TileID": 78, "Description": "A gray house tile. Is an opening without a door. Can sometimes be replaced with a door tile (tile 83)." },
-    { "TileID": 79, "Description": "A gray house tile. Is part of a house's wall." },
-    { "TileID": 80, "Description": "The right-most part of a horizontal fence line. Tile 81 will likely be connected to it to make the fence longer or tile 82 for a very short fence." },
-    { "TileID": 81, "Description": "The middle section of a horizontal fence line. Tile 81 will likely be connected to other tile 81s to extend the fence, or tile 80 on right or tile 82 on the right." },
-    { "TileID": 82, "Description": "The left-most part of a horizontal fence line. Tile 81 will likely be connected to it to make the fence longer or tile 82 for a very short fence." },
-    { "TileID": 83, "Description": "A sign that is used as a decorative item." },
+    {
+      "TileID": 68,
+      "Description": "Bottom left corner for a fenced-in area. Will most likely be connected with tile 69 on the right and tile 56 above."
+    },
+    {
+      "TileID": 69,
+      "Description": "A fence tile that connects with the left and the right, but has an opening in the middle. Will usually be used as an entrance or opening for a fenced-in area."
+    },
+    {
+      "TileID": 70,
+      "Description": "Bottom right corner for a fenced-in area. Will most likely be connected with tile 69 on the left and tile 58 above."
+    },
+    {
+      "TileID": 71,
+      "Description": "The bottom-most part of a vertical fence line. Tile 59 will likely be connected to it to make the fence longer or tile 47 for a very short fence."
+    },
+    {
+      "TileID": 72,
+      "Description": "A brown house tile. Is part of a house's wall."
+    },
+    {
+      "TileID": 73,
+      "Description": "A brown house tile. Is part of a house's wall."
+    },
+    {
+      "TileID": 74,
+      "Description": "A brown house tile. Is an opening without a door. Can sometimes be replaced with a door tile (tile 83)."
+    },
+    {
+      "TileID": 75,
+      "Description": "A brown house tile. Is part of a house's wall."
+    },
+    {
+      "TileID": 76,
+      "Description": "A gray house tile. Is part of a house's wall."
+    },
+    {
+      "TileID": 77,
+      "Description": "A gray house tile. Is part of a house's wall."
+    },
+    {
+      "TileID": 78,
+      "Description": "A gray house tile. Is an opening without a door. Can sometimes be replaced with a door tile (tile 83)."
+    },
+    {
+      "TileID": 79,
+      "Description": "A gray house tile. Is part of a house's wall."
+    },
+    {
+      "TileID": 80,
+      "Description": "The right-most part of a horizontal fence line. Tile 81 will likely be connected to it to make the fence longer or tile 82 for a very short fence."
+    },
+    {
+      "TileID": 81,
+      "Description": "The middle section of a horizontal fence line. Tile 81 will likely be connected to other tile 81s to extend the fence, or tile 80 on right or tile 82 on the right."
+    },
+    {
+      "TileID": 82,
+      "Description": "The left-most part of a horizontal fence line. Tile 81 will likely be connected to it to make the fence longer or tile 82 for a very short fence."
+    },
+    {
+      "TileID": 83,
+      "Description": "A sign that is used as a decorative item."
+    },
     { "TileID": 84, "Description": "A window that is part of a brown house." },
-    { "TileID": 85, "Description": "A single door that is part of a brown house." },
-    { "TileID": 86, "Description": "Left side of a double door used in conjuction to tile 87. Part of a brown house." },
-    { "TileID": 87, "Description": "Right side of a double door used in conjuction to tile 86. Part of a brown house." },
+    {
+      "TileID": 85,
+      "Description": "A single door that is part of a brown house."
+    },
+    {
+      "TileID": 86,
+      "Description": "Left side of a double door used in conjuction to tile 87. Part of a brown house."
+    },
+    {
+      "TileID": 87,
+      "Description": "Right side of a double door used in conjuction to tile 86. Part of a brown house."
+    },
     { "TileID": 88, "Description": "A window that is part of a gray house." },
-    { "TileID": 89, "Description": "A single door that is part of a gray house." },
-    { "TileID": 90, "Description": "Left side of a double door used in conjuction to tile 91. Part of a gray house." },
-    { "TileID": 91, "Description": "Right side of a double door used in conjuction to tile 90. Part of a gray house." },
-    { "TileID": 92, "Description": "The top section of a well that is used as a decorative item. This tile has to be used in conjunction with tile 104. " },
-    { "TileID": 93, "Description": "A coin that is used as a decorative item." },
-    { "TileID": 94, "Description": "A beehive that is used as a decorative item." },
-    { "TileID": 95, "Description": "A target that is used as a decorative item." },
-    { "TileID": 96, "Description": "The top-left corner of the top of a castle that has to be used in conjunction to Tiles 120, 98, and 122 and optionally multiple tiles 97, 108, 109, 110, and 97 to help extend the roof of the castle." },
-    { "TileID": 97, "Description": "The bottom-center corner of the top of a castle that has to be used in conjunction to Tiles 122, 98, and 96 and optionally multiple tiles 121, 108, 109, 110, and 97 to help extend the roof of the castle." },
-    { "TileID": 98, "Description": "The top-right corner of the top of a castle that has to be used in conjunction to Tiles 120, 122, and 96 and optionally multiple tiles 97, 108, 109, 110, and 97 to help extend the roof of the castle." },
-    { "TileID": 99, "Description": "Left piece of a castle roof. Used with tiles 100 and 101." },
-    { "TileID": 100, "Description": "Center piece of a castle roof. Can be used multiple times to the right or left to extend the roof." },
-    { "TileID": 101, "Description": "Right piece of a castle roof. Used with tiles 100 and 99." },
+    {
+      "TileID": 89,
+      "Description": "A single door that is part of a gray house."
+    },
+    {
+      "TileID": 90,
+      "Description": "Left side of a double door used in conjuction to tile 91. Part of a gray house."
+    },
+    {
+      "TileID": 91,
+      "Description": "Right side of a double door used in conjuction to tile 90. Part of a gray house."
+    },
+    {
+      "TileID": 92,
+      "Description": "The top section of a well that is used as a decorative item. This tile has to be used in conjunction with tile 104. "
+    },
+    {
+      "TileID": 93,
+      "Description": "A coin that is used as a decorative item."
+    },
+    {
+      "TileID": 94,
+      "Description": "A beehive that is used as a decorative item."
+    },
+    {
+      "TileID": 95,
+      "Description": "A target that is used as a decorative item."
+    },
+    {
+      "TileID": 96,
+      "Description": "The top-left corner of the top of a castle that has to be used in conjunction to Tiles 120, 98, and 122 and optionally multiple tiles 97, 108, 109, 110, and 97 to help extend the roof of the castle."
+    },
+    {
+      "TileID": 97,
+      "Description": "The bottom-center corner of the top of a castle that has to be used in conjunction to Tiles 122, 98, and 96 and optionally multiple tiles 121, 108, 109, 110, and 97 to help extend the roof of the castle."
+    },
+    {
+      "TileID": 98,
+      "Description": "The top-right corner of the top of a castle that has to be used in conjunction to Tiles 120, 122, and 96 and optionally multiple tiles 97, 108, 109, 110, and 97 to help extend the roof of the castle."
+    },
+    {
+      "TileID": 99,
+      "Description": "Left piece of a castle roof. Used with tiles 100 and 101."
+    },
+    {
+      "TileID": 100,
+      "Description": "Center piece of a castle roof. Can be used multiple times to the right or left to extend the roof."
+    },
+    {
+      "TileID": 101,
+      "Description": "Right piece of a castle roof. Used with tiles 100 and 99."
+    },
     { "TileID": 102, "Description": "A small castle roof the size of 1 tile." },
-    { "TileID": 103, "Description": "A ladder used as a piece in the roof of a castle." },
-    { "TileID": 104, "Description": "The bottom section of a well that is used as a decorative item. This tile has to be used in conjunction with tile 92. " },
-    { "TileID": 105, "Description": "A bomb that is used as a decorative item." },
-    { "TileID": 106, "Description": "A log that is used as a decorative item." },
-    { "TileID": 107, "Description": "A pot that can be used as a decorative items next to wells." },
-    { "TileID": 108, "Description": "Left connective piece used in the roofs of castles. Used multiple times to extend the roof." },
-    { "TileID": 109, "Description": "Center piece for roof of a castle. Used in extending the roof and filling in the middle." },
-    { "TileID": 110, "Description": "Right connective piece used in the roofs of castles. Used multiple times to extend the roof." },
-    { "TileID": 111, "Description": "The top-left part of a door (gated) to a caste that has to be used in conjunction with Tiles 112, 123, and 124." },
-    { "TileID": 112, "Description": "The top-right part of a door (gated) to a caste that has to be used in conjunction with Tiles 111, 123, and 124." },
-    { "TileID": 113, "Description": "The top-left part of a door (open) to a caste that has to be used in conjunction with Tiles 124, 114, and 123." },
-    { "TileID": 114, "Description": "The top-right part of a door (open) to a caste that has to be used in conjunction with Tiles 124, 113, and 123." },
-    { "TileID": 115, "Description": "A pickaxe that can be used as a decorative item." },
-    { "TileID": 116, "Description": "A pitchfork that can be used as a decorative item in fenced areas." },
-    { "TileID": 117, "Description": "A key that can be used as a decorative item." },
-    { "TileID": 118, "Description": "A bow that can be used as a decorative item alongside tile 119." },
-    { "TileID": 119, "Description": "An arrow that can be used as a decorative item alongside tile 118." },
-    { "TileID": 120, "Description": "The bottom-left corner of the top of a castle that has to be used in conjunction to Tiles 122, 98, and 96 and optionally multiple tiles 97, 108, 109, 110, and 97 to help extend the roof of the castle." },
-    { "TileID": 121, "Description": "The bottom-center corner of the top of a castle that has to be used in conjunction to Tiles 122, 98, and 96 and optionally multiple tiles 97, 108, 109, 110, and 97 to help extend the roof of the castle." },
-    { "TileID": 122, "Description": "The bottom-right corner of the top of a castle that has to be used in conjunction to Tiles 120, 98, and 96 and optionally multiple tiles 97, 108, 109, 110, and 97 to help extend the roof of the castle." },
-    { "TileID": 123, "Description": "The bottom-left part of a door to a caste that has to be used in conjunction with Tiles 124, 111, and 112." },
-    { "TileID": 124, "Description": "The bottom-right part of a door to a caste that has to be used in conjunction with Tiles 123, 111, and 112." },
-    { "TileID": 125, "Description": "A stone window that is used to build a castle." },
-    { "TileID": 126, "Description": "A stone wall that is used to build a castle." },
-    { "TileID": 127, "Description": "An axe that is used as a decorative item and a possible weapon." },
-    { "TileID": 128, "Description": "A shovel that is used as a decorative item next to fences." },
-    { "TileID": 129, "Description": "A sythe that is used as a decorative item next to fences." },
-    { "TileID": 130, "Description": "A bucket not filled with water that is used as a decorative item next to wells." },
-    { "TileID": 131, "Description": "A bucket filled with water that is used as a decorative item next to wells." }
+    {
+      "TileID": 103,
+      "Description": "A ladder used as a piece in the roof of a castle."
+    },
+    {
+      "TileID": 104,
+      "Description": "The bottom section of a well that is used as a decorative item. This tile has to be used in conjunction with tile 92. "
+    },
+    {
+      "TileID": 105,
+      "Description": "A bomb that is used as a decorative item."
+    },
+    {
+      "TileID": 106,
+      "Description": "A log that is used as a decorative item."
+    },
+    {
+      "TileID": 107,
+      "Description": "A pot that can be used as a decorative items next to wells."
+    },
+    {
+      "TileID": 108,
+      "Description": "Left connective piece used in the roofs of castles. Used multiple times to extend the roof."
+    },
+    {
+      "TileID": 109,
+      "Description": "Center piece for roof of a castle. Used in extending the roof and filling in the middle."
+    },
+    {
+      "TileID": 110,
+      "Description": "Right connective piece used in the roofs of castles. Used multiple times to extend the roof."
+    },
+    {
+      "TileID": 111,
+      "Description": "The top-left part of a door (gated) to a caste that has to be used in conjunction with Tiles 112, 123, and 124."
+    },
+    {
+      "TileID": 112,
+      "Description": "The top-right part of a door (gated) to a caste that has to be used in conjunction with Tiles 111, 123, and 124."
+    },
+    {
+      "TileID": 113,
+      "Description": "The top-left part of a door (open) to a caste that has to be used in conjunction with Tiles 124, 114, and 123."
+    },
+    {
+      "TileID": 114,
+      "Description": "The top-right part of a door (open) to a caste that has to be used in conjunction with Tiles 124, 113, and 123."
+    },
+    {
+      "TileID": 115,
+      "Description": "A pickaxe that can be used as a decorative item."
+    },
+    {
+      "TileID": 116,
+      "Description": "A pitchfork that can be used as a decorative item in fenced areas."
+    },
+    {
+      "TileID": 117,
+      "Description": "A key that can be used as a decorative item."
+    },
+    {
+      "TileID": 118,
+      "Description": "A bow that can be used as a decorative item alongside tile 119."
+    },
+    {
+      "TileID": 119,
+      "Description": "An arrow that can be used as a decorative item alongside tile 118."
+    },
+    {
+      "TileID": 120,
+      "Description": "The bottom-left corner of the top of a castle that has to be used in conjunction to Tiles 122, 98, and 96 and optionally multiple tiles 97, 108, 109, 110, and 97 to help extend the roof of the castle."
+    },
+    {
+      "TileID": 121,
+      "Description": "The bottom-center corner of the top of a castle that has to be used in conjunction to Tiles 122, 98, and 96 and optionally multiple tiles 97, 108, 109, 110, and 97 to help extend the roof of the castle."
+    },
+    {
+      "TileID": 122,
+      "Description": "The bottom-right corner of the top of a castle that has to be used in conjunction to Tiles 120, 98, and 96 and optionally multiple tiles 97, 108, 109, 110, and 97 to help extend the roof of the castle."
+    },
+    {
+      "TileID": 123,
+      "Description": "The bottom-left part of a door to a caste that has to be used in conjunction with Tiles 124, 111, and 112."
+    },
+    {
+      "TileID": 124,
+      "Description": "The bottom-right part of a door to a caste that has to be used in conjunction with Tiles 123, 111, and 112."
+    },
+    {
+      "TileID": 125,
+      "Description": "A stone window that is used to build a castle."
+    },
+    {
+      "TileID": 126,
+      "Description": "A stone wall that is used to build a castle."
+    },
+    {
+      "TileID": 127,
+      "Description": "An axe that is used as a decorative item and a possible weapon."
+    },
+    {
+      "TileID": 128,
+      "Description": "A shovel that is used as a decorative item next to fences."
+    },
+    {
+      "TileID": 129,
+      "Description": "A sythe that is used as a decorative item next to fences."
+    },
+    {
+      "TileID": 130,
+      "Description": "A bucket not filled with water that is used as a decorative item next to wells."
+    },
+    {
+      "TileID": 131,
+      "Description": "A bucket filled with water that is used as a decorative item next to wells."
+    }
   ]
 }

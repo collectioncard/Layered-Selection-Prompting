@@ -63,7 +63,7 @@ class Structure {
 }
 
 export class WorldFactsDatabaseMaker {
-  TILE_COLORS : TileColor[] = [
+  TILE_COLORS: TileColor[] = [
     {
       colorID: 0,
       colorName: "red",
@@ -77,7 +77,10 @@ export class WorldFactsDatabaseMaker {
     {
       colorID: 2,
       colorName: "brown",
-      tileIDs: [72, 73, 74, 75, 84, 85, 86, 87, 44, 45, 46, 47, 56, 58, 59, 68, 69, 70, 71, 80, 81, 82],
+      tileIDs: [
+        72, 73, 74, 75, 84, 85, 86, 87, 44, 45, 46, 47, 56, 58, 59, 68, 69, 70,
+        71, 80, 81, 82,
+      ],
     },
     {
       colorID: 3,
@@ -91,10 +94,13 @@ export class WorldFactsDatabaseMaker {
     },
   ];
 
-  STRUCTURE_TYPES : StructureType[] = [
+  STRUCTURE_TYPES: StructureType[] = [
     {
       name: "house",
-      tileIDs: [48, 49, 50, 51, 52, 53, 54, 55, 56, 61, 62, 63, 64, 65, 66, 67, 68, 73, 74, 75, 76, 77, 78, 79, 80, 85, 86, 87, 88, 89, 90, 91],
+      tileIDs: [
+        48, 49, 50, 51, 52, 53, 54, 55, 56, 61, 62, 63, 64, 65, 66, 67, 68, 73,
+        74, 75, 76, 77, 78, 79, 80, 85, 86, 87, 88, 89, 90, 91,
+      ],
       features: {
         archway: [74, 78],
         chimney: [51, 55],
@@ -130,7 +136,10 @@ export class WorldFactsDatabaseMaker {
     },
     {
       name: "forest",
-      tileIDs: [3, 4, 5, 6, 8, 9, 10, 11, 15, 16, 17, 18, 19, 20, 21, 22, 23, 27, 28, 29, 30, 31, 32, 33, 34, 35, 106, 94],
+      tileIDs: [
+        3, 4, 5, 6, 8, 9, 10, 11, 15, 16, 17, 18, 19, 20, 21, 22, 23, 27, 28,
+        29, 30, 31, 32, 33, 34, 35, 106, 94,
+      ],
       features: {
         log: [106],
         beehive: [94],
@@ -138,7 +147,7 @@ export class WorldFactsDatabaseMaker {
         sprout: [17],
       },
     },
-  ]; 
+  ];
 
   DIRECTIONS: Direction[] = [
     { x: 0, y: -1 }, // up
@@ -155,7 +164,12 @@ export class WorldFactsDatabaseMaker {
   structRange: number;
   structures: Structure[];
 
-  constructor(mapData: number[][], mapWidth: number, mapHeight: number, structRange: number) {
+  constructor(
+    mapData: number[][],
+    mapWidth: number,
+    mapHeight: number,
+    structRange: number,
+  ) {
     this.mapData = mapData;
     this.mapWidth = mapWidth;
     this.mapHeight = mapHeight;
@@ -163,13 +177,19 @@ export class WorldFactsDatabaseMaker {
     this.structures = [];
   }
 
-  getWorldFacts():void {
+  getWorldFacts(): void {
     // Populate
-    console.log(this.mapData)
+    console.log(this.mapData);
     this.structures = [];
     for (const type of this.STRUCTURE_TYPES) {
-      for (const [index, positionArray] of this.getStructures(type.tileIDs).entries()) {
-        let struct = new Structure(type.name, index, this.getBoundingBox(positionArray));
+      for (const [index, positionArray] of this.getStructures(
+        type.tileIDs,
+      ).entries()) {
+        let struct = new Structure(
+          type.name,
+          index,
+          this.getBoundingBox(positionArray),
+        );
 
         struct.absPosition = this.getStructureAbsPosition(positionArray);
         struct.features = this.getStructureFeatures(type, positionArray);
@@ -195,14 +215,19 @@ export class WorldFactsDatabaseMaker {
 
         otherName = otherName += otherID;
 
-        let relativePos = this.getStructRelativePosition(this.structures[j], struct); // struct is to the DIR of this.structures[j]
+        let relativePos = this.getStructRelativePosition(
+          this.structures[j],
+          struct,
+        ); // struct is to the DIR of this.structures[j]
         struct.relativePos.push({ otherName, relativePos });
       }
     }
   }
 
   getStructures(structureTiles: number[]): { x: number; y: number }[][] {
-    const visitedTiles = Array.from({ length: this.mapData.length }, () => Array(this.mapData[0].length).fill(false));
+    const visitedTiles = Array.from({ length: this.mapData.length }, () =>
+      Array(this.mapData[0].length).fill(false),
+    );
     const structures: { x: number; y: number }[][] = [];
 
     for (let y = 0; y < this.mapData.length; y++) {
@@ -226,7 +251,7 @@ export class WorldFactsDatabaseMaker {
     startX: number,
     startY: number,
     visitedTiles: boolean[][],
-    structureTiles: number[]
+    structureTiles: number[],
   ): { x: number; y: number }[] {
     const structure: { x: number; y: number }[] = [];
     const stack = [{ x: startX, y: startY }];
@@ -262,10 +287,10 @@ export class WorldFactsDatabaseMaker {
   }
 
   getBoundingBox(structure: { x: number; y: number }[]): BoundingBox {
-    let minX : number = structure[0].x;
-    let maxX : number = structure[0].x;
-    let minY : number = structure[0].y;
-    let maxY : number = structure[0].y;
+    let minX: number = structure[0].x;
+    let maxX: number = structure[0].x;
+    let minY: number = structure[0].y;
+    let maxY: number = structure[0].y;
 
     for (const { x, y } of structure) {
       if (x < minX) minX = x;
@@ -285,19 +310,26 @@ export class WorldFactsDatabaseMaker {
 
   getDescriptionParagraph(): string {
     let par: string = "";
-    let canvasHeight = this.mapHeight; // You need to define this based on your canvas
-    
+
     for (let i = 0; i < this.structures.length; i++) {
       let struct = this.structures[i];
-  
+
       // Initial identification
       if (i == 0) {
         par += "There is a";
       } else {
-        let relativePos = this.getStructRelativePosition(this.structures[i - 1], struct);
-        par += " To the" + relativePos + " of that " + this.structures[i - 1].type + ", there is a";
+        let relativePos = this.getStructRelativePosition(
+          this.structures[i - 1],
+          struct,
+        );
+        par +=
+          " To the" +
+          relativePos +
+          " of that " +
+          this.structures[i - 1].type +
+          ", there is a";
       }
-  
+
       // Structure color
       for (let j = 0; j < struct.colors.length; j++) {
         par += " " + struct.colors[j];
@@ -305,17 +337,19 @@ export class WorldFactsDatabaseMaker {
           par += " and";
         }
       }
-  
+
       par += " " + struct.type;
       par += " at the " + struct.absPosition + " of the selection box";
-  
+
       let topx = struct.boundingBox.topLeft.minX;
       let topy = struct.boundingBox.topLeft.minY;
       let bottomx = struct.boundingBox.bottomRight.maxX;
       let bottomy = struct.boundingBox.bottomRight.maxY;
       par += ` (selection box coordinates: (${topx}, ${topy}) to (${bottomx}, ${bottomy}))`;
-      let width = struct.boundingBox.bottomRight.maxX - struct.boundingBox.topLeft.minX;
-      let height = struct.boundingBox.bottomRight.maxY - struct.boundingBox.topLeft.minY;
+      let width =
+        struct.boundingBox.bottomRight.maxX - struct.boundingBox.topLeft.minX;
+      let height =
+        struct.boundingBox.bottomRight.maxY - struct.boundingBox.topLeft.minY;
       par += ` with a size of ${width}×${height}`;
       // Substructures
       let hasSubstructures = false;
@@ -324,15 +358,16 @@ export class WorldFactsDatabaseMaker {
         if (j == 0) {
           par += " with a ";
         }
-  
-        par += struct.substructures[j].colors + " " + struct.substructures[j].type;
+
+        par +=
+          struct.substructures[j].colors + " " + struct.substructures[j].type;
         if (j == struct.substructures.length - 2) {
           par += ", and ";
         } else if (j < struct.substructures.length - 1) {
           par += ", a ";
         }
       }
-  
+
       // Features
       for (let j = 0; j < struct.features.length; j++) {
         if (j == 0 && !hasSubstructures) {
@@ -340,7 +375,7 @@ export class WorldFactsDatabaseMaker {
         } else if (j == 0 && hasSubstructures) {
           par += ", ";
         }
-  
+
         par += struct.features[j];
         if (j == struct.features.length - 2) {
           par += ", and ";
@@ -350,22 +385,33 @@ export class WorldFactsDatabaseMaker {
       }
       par += ". ";
     }
-  
+
     return par;
   }
 
-  getStructRelativePosition(prevStruct: Structure, newStruct: Structure): string {
+  getStructRelativePosition(
+    prevStruct: Structure,
+    newStruct: Structure,
+  ): string {
     let relativePos = "";
     // if the new structure is above the previous
-    if (newStruct.boundingBox.topLeft.minY < prevStruct.boundingBox.topLeft.minY) {
+    if (
+      newStruct.boundingBox.topLeft.minY < prevStruct.boundingBox.topLeft.minY
+    ) {
       relativePos += " top";
-    } else if (newStruct.boundingBox.topLeft.minY > prevStruct.boundingBox.topLeft.minY) {
+    } else if (
+      newStruct.boundingBox.topLeft.minY > prevStruct.boundingBox.topLeft.minY
+    ) {
       relativePos += " bottom";
     }
 
-    if (newStruct.boundingBox.topLeft.minX > prevStruct.boundingBox.topLeft.minX) {
+    if (
+      newStruct.boundingBox.topLeft.minX > prevStruct.boundingBox.topLeft.minX
+    ) {
       relativePos += " right";
-    } else if (newStruct.boundingBox.topLeft.minX < prevStruct.boundingBox.topLeft.minX) {
+    } else if (
+      newStruct.boundingBox.topLeft.minX < prevStruct.boundingBox.topLeft.minX
+    ) {
       relativePos += " left";
     }
 
@@ -376,42 +422,48 @@ export class WorldFactsDatabaseMaker {
     return this.getMapZone(positions[0]);
   }
 
-  getStructureFeatures(type: StructureType, positions: { x: number; y: number }[]): string[] {
-  let features = type.features!;
-  let structFeaturesList: string[] = [];
+  getStructureFeatures(
+    type: StructureType,
+    positions: { x: number; y: number }[],
+  ): string[] {
+    let features = type.features!;
+    let structFeaturesList: string[] = [];
 
-  for (let featureType in features) {
-    let featureCount: number = 0;
-    let featureCoords: string[] = [];
+    for (let featureType in features) {
+      let featureCount: number = 0;
+      let featureCoords: string[] = [];
 
-    for (let { x, y } of positions) {
-      if (features[featureType].includes(this.mapData[y][x])) {
-        featureCount++;
-        if (featureType === "door") {
-          featureCoords.push(`(${x}, ${y})`);
+      for (let { x, y } of positions) {
+        if (features[featureType].includes(this.mapData[y][x])) {
+          featureCount++;
+          if (featureType === "door") {
+            featureCoords.push(`(${x}, ${y})`);
+          }
         }
       }
+
+      if (featureCount > 0) {
+        let featureLabel = featureType;
+        if (featureCount > 1) {
+          featureLabel += "s";
+        }
+
+        let featureString = `${featureCount} ${featureLabel}`;
+        if (featureType === "door") {
+          featureString += ` at ${featureCoords.join(", ")}`;
+        }
+
+        structFeaturesList.push(featureString);
+      }
     }
 
-    if (featureCount > 0) {
-      let featureLabel = featureType;
-      if (featureCount > 1) {
-        featureLabel += "s";
-      }
-
-      let featureString = `${featureCount} ${featureLabel}`;
-      if (featureType === "door") {
-        featureString += ` at ${featureCoords.join(", ")}`;
-      }
-
-      structFeaturesList.push(featureString);
-    }
+    return structFeaturesList;
   }
 
-  return structFeaturesList;
-}
-
-  getSubstructures(type: StructureType, positions: { x: number; y: number }[]): Substructure[] {
+  getSubstructures(
+    type: StructureType,
+    positions: { x: number; y: number }[],
+  ): Substructure[] {
     let substructures = type.substructures!;
     let substructList: Substructure[] = [];
     let substructPositions: { x: number; y: number }[] = [];
@@ -439,8 +491,8 @@ export class WorldFactsDatabaseMaker {
   }
 
   getColors(positions: { x: number; y: number }[]): string[] {
-    let color1 : string = "";
-    let color2 : string = "";
+    let color1: string = "";
+    let color2: string = "";
     let colorsCount: number[] = [];
 
     // init colorsCount
@@ -479,8 +531,8 @@ export class WorldFactsDatabaseMaker {
   }
 
   getMaxColor(colorsCount: number[]): number {
-    let maxColorFrequency : number = 0;
-    let maxColorIndex : number = 0;
+    let maxColorFrequency: number = 0;
+    let maxColorIndex: number = 0;
 
     for (let i = 0; i < colorsCount.length; i++) {
       if (colorsCount[i] > maxColorFrequency) {
@@ -494,7 +546,10 @@ export class WorldFactsDatabaseMaker {
     return maxColorIndex;
   }
 
-  colorSeparation(type: StructureType, positions: { x: number; y: number }[]): { x: number; y: number }[] {
+  colorSeparation(
+    type: StructureType,
+    positions: { x: number; y: number }[],
+  ): { x: number; y: number }[] {
     if (type.substructures == null) {
       return positions;
     }
@@ -514,11 +569,11 @@ export class WorldFactsDatabaseMaker {
   }
 
   getMapZone(coords: { x: number; y: number }): string {
-    let horizontalSliceSize : number = this.mapHeight / 3;
-    let verticalSliceSize : number = this.mapWidth / 3;
+    let horizontalSliceSize: number = this.mapHeight / 3;
+    let verticalSliceSize: number = this.mapWidth / 3;
 
     let { x, y } = coords;
-    let mapZone : string = "";
+    let mapZone: string = "";
 
     if (y < horizontalSliceSize) {
       mapZone = "top";
