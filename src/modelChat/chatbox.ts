@@ -23,20 +23,14 @@ document
     addChatMessage(new HumanMessage(userMessage));
 
     document.dispatchEvent(new CustomEvent("chatResponseStart"));
-    let botResponseEntry: string;
+    let botResponseEntry;
 
     try {
       botResponseEntry = await getChatResponse(chatHistory);
-      if (botResponseEntry.startsWith("Error:")) {
-        addChatMessage(
-          new AIMessage(
-            "Oops, there was a problem" +
-              botResponseEntry.replace(/^Error:\s*/, ""),
-          ),
-        );
-      } else {
-        addChatMessage(new AIMessage(botResponseEntry));
-      }
+
+      addChatMessage(
+        botResponseEntry.messages[botResponseEntry.messages.length - 1],
+      );
     } catch (exception) {
       const errorMessage =
         exception instanceof Error ? exception.message : "Unknown error";
@@ -102,16 +96,9 @@ export async function sendSystemMessage(message: string): Promise<void> {
       systemMessage,
     ]);
 
-    if (botResponseEntry.startsWith("Error:")) {
-      addChatMessage(
-        new AIMessage(
-          "Oops, there was a problem: " +
-            botResponseEntry.replace(/^Error:\s*/, ""),
-        ),
-      );
-    } else {
-      addChatMessage(new AIMessage(botResponseEntry));
-    }
+    addChatMessage(
+      botResponseEntry.messages[botResponseEntry.messages.length - 1],
+    );
   } catch (exception) {
     const errorMessage =
       exception instanceof Error ? exception.message : "Unknown error";
