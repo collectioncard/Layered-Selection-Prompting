@@ -2,10 +2,10 @@ import {
   completedSection,
   FeatureGenerator,
   generatorInput,
-} from "../IGenerator.ts";
+} from "../featureGenerators/GeneratorInterface";
 import { tool } from "@langchain/core/tools";
 import { z } from "zod";
-import { TinyTownScene } from "../../TinyTownScene.ts";
+import { TinyTownScene } from "../TinyTownScene";
 
 export class boxClear implements FeatureGenerator {
   sceneGetter: () => TinyTownScene;
@@ -15,81 +15,69 @@ export class boxClear implements FeatureGenerator {
   }
 
   toolCall = tool(
-    async ({
-      x,
-      y,
-      width,
-      height,
-    }: {
-      x: number;
-      y: number;
-      width: number;
-      height: number;
-    }) => {
-      console.log("clear at:", x, y, width, height);
-
-      const scene = this.sceneGetter();
-      if (!scene) {
-        console.error("Scene getter returned null");
-        return "Tool Failed: no scene.";
+    async ({ x, y, width, height }) => {
+      console.log("clear: ", x, y);
+      let scene = this.sceneGetter();
+      if (scene == null) {
+        console.log("getSceneFailed");
+        return "Tool Failed, no reference to scene.";
       }
-
-      const selection = scene.getSelection();
-      if (!selection) {
-        console.error("No selection found");
-        return "Tool Failed: no selection.";
-      }
-
+      let selection = scene.getSelection();
+      console.log(selection);
       try {
         await scene.putFeatureAtSelection(
-          this.generate(selection, { x, y, width, height }),
+          this.generate(selection, [x, y, width, height]),
           false,
           true,
         );
-        return `Cleared at (${x}, ${y}) size ${width}x${height}`;
-      } catch (err) {
-        console.error("putFeatureAtSelection failed:", err);
+        return `cleared at: ${[x, y]} with width: ${width} and height: ${height}`;
+      } catch (e) {
+        console.error("putFeatureAtSelection failed:", e);
         return `Failed to clear`;
       }
     },
     {
       name: "ClearBox",
       schema: z.object({
-        x: z.number().min(0).describe("Top-left X coordinate"),
-        y: z.number().min(0).describe("Top-left Y coordinate"),
-        width: z.number().min(1).describe("Width of rectangle"),
-        height: z.number().min(1).describe("Height of rectangle"),
+        x: z.number(),
+        y: z.number(),
+        width: z.number(),
+        height: z.number(),
       }),
       description:
-        "Clears a rectangular local area at (x,y) with width and height, deleting contents",
+        "clears a rectangular area of the map defined by its top-left corner local coordinates (x,y), width, and height, clearing all cells and deleting their contents",
     },
   );
 
-  generate(
-    mapSection: generatorInput,
-    args: { x: number; y: number; width: number; height: number },
-  ): completedSection {
-    const { x, y, width, height } = args;
-    const grid = mapSection.grid;
+  /** args [x, y, width, height] */
+  generate(mapSection: generatorInput, _args?: any): completedSection {
+    let grid: number[][] = mapSection.grid;
+    //Why are we using the args instead of just getting the selection dimensions?
+    // IDK, but lets just force args 2 and 3 to not be bigger than the array
+    // _args[2] = Math.min(_args[2], mapSection.width );
+    // _args[3] = Math.min(_args[3], mapSection.height );
 
-    // clamp to selection bounds
-    const maxY = Math.min(y + height, grid.length);
-    const maxX = Math.min(x + width, grid[0]?.length ?? 0);
-
-    console.log("Before clear:", grid);
-
-    for (let row = y; row < maxY; row++) {
-      for (let col = x; col < maxX; col++) {
-        grid[row][col] = -2;
+    console.log(grid);
+    for (let i = _args[1]; i < _args[1] + _args[3]; i++) {
+      for (let j = _args[0]; j < _args[0] + _args[2]; j++) {
+        grid[i][j] = -2;
       }
     }
-
-    console.log("After clear:", grid);
+    console.log("cleared grid: ", grid);
+    let feedback =
+      "cleared " +
+      _args[0] +
+      ", " +
+      _args[1] +
+      " in local space with width " +
+      _args[2] +
+      " and height " +
+      _args[3];
 
     return {
       name: "ClearBox",
-      description: `Cleared area at (${x}, ${y}) width=${width} height=${height}`,
-      grid,
+      description: feedback,
+      grid: grid,
       points_of_interest: new Map(),
     };
   }

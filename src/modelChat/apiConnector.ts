@@ -96,6 +96,8 @@ export function createNewAgent() {
 export async function getChatResponse(
   chatMessageHistory: BaseMessage[],
 ): Promise<any> {
+  console.log("chatHistory:", chatMessageHistory);
+
   if (!agent) {
     console.error("Agent not initialized. Call createNewAgent first.");
     return "Error: Agent is not initialized.";
