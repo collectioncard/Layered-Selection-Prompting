@@ -1,8 +1,12 @@
 import "./style.css";
 import { createGame, TinyTownScene } from "./phaser/TinyTownScene.ts";
+
+//LLM Management
 import "./modelChat/chatbox.ts";
-// Register tools from the scene to the apiConnector
-import { initializeTools, registerTool } from "./modelChat/apiConnector.ts";
+import { clearChatHistory } from "./modelChat/chatbox.ts";
+import { createNewAgent, registerTool } from "./modelChat/apiConnector.ts";
+
+//LLM Tools for registration
 import { DecorGenerator } from "./phaser/tools/featureGenerators/decorGenerator.ts";
 import { ForestGenerator } from "./phaser/tools/featureGenerators/forestGenerator.ts";
 import { HouseGenerator } from "./phaser/tools/featureGenerators/houseGenerator.ts";
@@ -15,24 +19,19 @@ import { boxClear } from "./phaser/tools/simpleTools/clear.ts";
 import {
   ListLayersTool,
   NameLayerTool,
+  SelectLayerTool,
+  RenameLayerTool,
+  DeleteLayerTool,
 } from "./phaser/tools/simpleTools/layerTools.ts";
-import { SelectLayerTool } from "./phaser/tools/simpleTools/layerTools.ts";
-import { RenameLayerTool } from "./phaser/tools/simpleTools/layerTools.ts";
-import { DeleteLayerTool } from "./phaser/tools/simpleTools/layerTools.ts";
-import { clearChatHistory } from "./modelChat/chatbox.ts";
 
-let gameInstance: Phaser.Game | null = null;
+////////**** MAIN APP LOGIC ****////////
 
-export function getScene(): TinyTownScene {
-  if (!gameInstance) throw Error("Scene does not exist >:(");
-  console.log(gameInstance.scene.getScene("TinyTown"));
-  return gameInstance.scene.getScene("TinyTown") as TinyTownScene;
-}
-
-gameInstance = await createGame(
+//Phaser scene ref
+let gameInstance: Phaser.Game = createGame(
   document.getElementById("map") as HTMLDivElement,
 );
 
+////LLM Tool Registration and Initialization////
 const generators = {
   decor: new DecorGenerator(getScene),
   forest: new ForestGenerator(getScene),
@@ -44,22 +43,27 @@ const generators = {
   box: new boxPlacer(getScene),
   clear: new boxClear(getScene),
   name_layer: new NameLayerTool(getScene),
-  // move_layer: new MoveLayerTool(getScene),
   select_layer: new SelectLayerTool(getScene),
   rename_layer: new RenameLayerTool(getScene),
   delete_layer: new DeleteLayerTool(getScene),
   list_layers: new ListLayersTool(getScene),
 };
-
-let draggedElement: HTMLElement | null = null;
-
 Object.values(generators).forEach((generator) => {
   if (generator.toolCall) {
     registerTool(generator.toolCall);
   }
 });
 
-initializeTools();
+//Once all tools are registered, we can init the LLM
+createNewAgent();
+
+let draggedElement: HTMLElement | null = null;
+
+export function getScene(): TinyTownScene {
+  if (!gameInstance) throw Error("Scene does not exist >:(");
+  console.log(gameInstance.scene.getScene("TinyTown"));
+  return gameInstance.scene.getScene("TinyTown") as TinyTownScene;
+}
 
 //I'll be sad if anyone removes my funny faces. They bring me joy when stuff doesn't work - Thomas
 document.title = "Selection Generation " + getRandEmoji();

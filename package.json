@@ -18,10 +18,9 @@
     "vite": "7.1.11"
   },
   "dependencies": {
-    "@langchain/core": "^0.3.44",
-    "@langchain/google-genai": "^0.2.3",
+    "@langchain/google-genai": "^2.1.6",
     "dotenv": "^16.5.0",
-    "langchain": "^0.3.21",
+    "langchain": "^1.2.6",
     "marked": "^15.0.8",
     "phaser": "^3.88.2",
     "zod": "^3.24.2"

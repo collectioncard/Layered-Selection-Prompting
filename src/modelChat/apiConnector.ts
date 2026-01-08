@@ -1,13 +1,8 @@
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
+import { createAgent, ReactAgent } from "langchain";
+import { BaseMessage } from "@langchain/core/messages";
 
-import {
-  BaseMessage,
-  ToolMessage,
-  SystemMessage,
-} from "@langchain/core/messages";
-// import { tool } from "@langchain/core/tools";
-
-const tilestuff = await fetch("../phaserAssets/Assets/TileDatabase.json").then(
+const tileDefs = await fetch("../phaserAssets/Assets/TileDatabase.json").then(
   (response) => response.json(),
 );
 
@@ -42,7 +37,7 @@ const sysPrompt =
   "\n" +
   "4.  **Tile Data & Placement Rules:**\n" +
   "    *   **Available Tiles:** The entire list of tiles and their ID numbers is: \n" +
-  JSON.stringify(tilestuff) +
+  JSON.stringify(tileDefs) +
   "    *   **Placement Within Selection:** When placing objects (e.g., houses, trees), ensure they fit *entirely* within the specified or current selection boundaries. This includes their full width and height. No part of an object should extend beyond the selection.\n" +
   '    *   **CLAMPING BEHAVIOR:** If a requested width/height exceeds the usable area (selection minus 1-tile padding on each side), automatically clamp to the largest valid dimensions rather than raising an error. If the *minimum* size (3×3) cannot fit, return `"Error: Selection is too small for a 3×3"`.\n' +
   "\n" +
@@ -66,132 +61,52 @@ const sysPrompt =
   "    *   Format the results as a bullet point list, with nested layers properly indented to reflect their hierarchy. You should also be able to get coordinates from the tool call." +
   "**Summary for 'Pewter:** You're the expert. Be proactive with defaults and inferences. Local coords for tools, always. Stay within bounds. Have fun with the user!";
 
-console.log(tilestuff);
-console.log(JSON.stringify(tilestuff));
-
 const apiKey: string | undefined = import.meta.env.VITE_LLM_API_KEY;
 const modelName: string | undefined = import.meta.env.VITE_LLM_MODEL_NAME;
 if (!apiKey) throw new Error("Missing VITE_LLM_API_KEY in environment");
 if (!modelName) throw new Error("Missing VITE_LLM_MODEL_NAME in environment");
 
 const temperature = 0;
+let tools: any = [];
 
-// this is the base model, use llmWithTools to call the model with tools
-const llm = new ChatGoogleGenerativeAI({
-  model: modelName,
-  temperature: temperature,
-  maxRetries: 2,
-  apiKey: apiKey,
-});
+let agent: ReactAgent | null = null;
+
+// We now only support using the agent provided by langchain instead of handling tool calls ourselves. Should be so much simpler.
 
 // this stores the references to the tool functions with their schemas
-let tools: any = [];
-// this stores backwards references to the tool functions from their names
-let toolsByName: Record<string, any> = {};
-
-// this is the llm to call that has the tools
-// it needs to be rebound after all tools are in the list.
-let llmWithTools: ReturnType<typeof llm.bindTools> | null = null;
 
 export function registerTool(tool: any) {
-  if (toolsByName[tool.name]) {
-    console.warn(`Tool "${tool.name}" was already registered; overwriting.`);
-  }
   tools.push(tool);
-  toolsByName[tool.name] = tool;
   console.log("Tool registered: ", tool.name);
 }
 
-export function initializeTools() {
-  if (llmWithTools) return;
-  llmWithTools = llm.bindTools(tools);
-  console.log("All tools bound to LLM:", Object.keys(toolsByName));
-}
-
-export async function initilizeLLM(
-  chatMessageHistory: BaseMessage[],
-): Promise<void> {
-  // this is the system message that initializes the model
-  const systemMessage = new SystemMessage(sysPrompt);
-  chatMessageHistory.push(systemMessage);
-  // We should add a list of the tools and things that the model can do to the system prompt.
-  console.log("Tools initialized: ", tools.length);
+// Creates a new agent instance and binds that to the exported agent variable
+export function createNewAgent() {
+  agent = createAgent({
+    model: new ChatGoogleGenerativeAI({
+      model: modelName || "gemini-3-flash",
+      temperature: temperature,
+      apiKey: apiKey,
+    }),
+    tools: tools,
+    systemPrompt: sysPrompt,
+  });
 }
 
 export async function getChatResponse(
   chatMessageHistory: BaseMessage[],
-): Promise<string> {
-  if (!llmWithTools) {
-    throw new Error(
-      "LLM has not been initialized with tools. Did you forget to call initializeTools()?",
-    );
+): Promise<any> {
+  if (!agent) {
+    console.error("Agent not initialized. Call createNewAgent first.");
+    return "Error: Agent is not initialized.";
   }
 
   try {
-    let response = await llmWithTools.invoke(chatMessageHistory);
-
-    console.log("Raw LLM resoponse: ", response);
-
-    chatMessageHistory.push(response); // This is required for tools to work
-
-    // Iterate through all tool calls
-    const calls = response.tool_calls ?? [];
-    for (const toolCall of calls) {
-      const selectedTool = toolsByName[toolCall.name];
-      if (!selectedTool) {
-        const msg = `Error: Unknown tool "${toolCall.name}".`;
-        console.error(msg);
-        chatMessageHistory.push(
-          new ToolMessage({
-            name: toolCall.name,
-            content: msg,
-            tool_call_id: String(toolCall.id || ""),
-          }),
-        );
-        continue;
-      }
-      try {
-        const result = await selectedTool.invoke(toolCall.args);
-        console.log(`Tool called ${toolCall.name} with result: ${result}`);
-
-        chatMessageHistory.push(
-          new ToolMessage({
-            name: toolCall.name,
-            content: result,
-            tool_call_id: String(toolCall.id || ""),
-          }),
-        );
-      } catch (toolError) {
-        console.error(`Tool ${toolCall.name} failed:`, toolError);
-        // Add error message to chat history
-        const errorMessage =
-          `Error: Tool '${toolCall.name}' failed with args: ${JSON.stringify(toolCall.args)}.\n` +
-          `Details: ${toolError}. Please try again with different parameters.`;
-
-        chatMessageHistory.push(
-          new ToolMessage({
-            name: toolCall.name,
-            content: errorMessage,
-            tool_call_id: String(toolCall.id || ""),
-          }),
-        );
-      }
-    }
-
-    // If a tool is called then ask the LLM to comment on it
-    if (calls.length > 0) {
-      response = await llmWithTools.invoke(chatMessageHistory);
-      console.log("Raw LLM response after tool calls:", response);
-    }
-
-    let resultContent = response.content;
-    if (typeof resultContent !== "string") {
-      console.log("Non-string AI response detected:", resultContent);
-      resultContent = JSON.stringify(resultContent);
-    }
-    return resultContent;
+    return await agent.invoke({
+      messages: chatMessageHistory,
+    });
   } catch (error) {
-    console.error("Error in LLM call: ", error);
-    return "Error communicating with model :(";
+    console.error("Agent Error:", error);
+    return "Error: There was an issue processing your request.";
   }
 }
