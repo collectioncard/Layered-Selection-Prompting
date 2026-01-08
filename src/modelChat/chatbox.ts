@@ -28,9 +28,12 @@ document
     try {
       botResponseEntry = await getChatResponse(chatHistory);
 
-      addChatMessage(
-        botResponseEntry.messages[botResponseEntry.messages.length - 1],
-      );
+      //Add all of the new responses from the bot to the chat
+      for (const message of botResponseEntry.messages.slice(
+        chatHistory.length,
+      )) {
+        addChatMessage(message);
+      }
     } catch (exception) {
       const errorMessage =
         exception instanceof Error ? exception.message : "Unknown error";
@@ -96,9 +99,10 @@ export async function sendSystemMessage(message: string): Promise<void> {
       systemMessage,
     ]);
 
-    addChatMessage(
-      botResponseEntry.messages[botResponseEntry.messages.length - 1],
-    );
+    //Add all of the new responses from the bot to the chat
+    for (const message of botResponseEntry.messages.slice(chatHistory.length)) {
+      addChatMessage(message);
+    }
   } catch (exception) {
     const errorMessage =
       exception instanceof Error ? exception.message : "Unknown error";
