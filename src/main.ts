@@ -37,7 +37,7 @@ let gameInstance: Phaser.Game = createGame(
 
 ////LLM Tool Registration and Initialization////
 const generators = {
-  decor: new DecorGenerator(getScene),
+  //decor: new DecorGenerator(getScene),
   forest: new ForestGenerator(getScene),
   house: new HouseGenerator(getScene),
   full_fence: new FullFenceGenerator(getScene),
