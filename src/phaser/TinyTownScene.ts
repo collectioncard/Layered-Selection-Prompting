@@ -12,8 +12,9 @@ interface TinyTownSceneData {
 }
 
 const TILE_PRIORITY = {
-  HOUSE: 4,
-  FENCE: 3,
+  HOUSE: 5,
+  FENCE: 4,
+  PATH: 3,
   DECOR: 2,
   FOREST: 1,
   GRASS: 0,
@@ -107,7 +108,7 @@ export class TinyTownScene extends Phaser.Scene {
 
   ////DEBUG / FEATURE FLAGS////
   private readonly allowOverwriting: boolean = true; // Allows LLM to overwrite placed tiles
-  private readonly AUTOLAYER: boolean = true;
+  private readonly AUTOLAYER: boolean = false;
 
   // Phaser map & tileset references
   private map!: Phaser.Tilemaps.Tilemap;
@@ -1191,21 +1192,40 @@ export class TinyTownScene extends Phaser.Scene {
     console.log("View reset to default");
   }
 
-  getTilePriority(tileIndex: number): number {
+  public getTilePriority(tileIndex: number): number {
     if (tileIndex === -1) {
       return TILE_PRIORITY.EMPTY; // -1
     }
-    if ([44, 45, 46, 56, 58, 68, 69, 70].includes(tileIndex)) {
-      return TILE_PRIORITY.FENCE; // 3
-    }
 
+    // House tiles (highest priority)
     if (
       (tileIndex >= 48 && tileIndex <= 67) ||
       (tileIndex >= 72 && tileIndex <= 91)
     ) {
-      return TILE_PRIORITY.HOUSE; // 4
+      return TILE_PRIORITY.HOUSE; // 5
     }
 
+    // Fence tiles
+    if ([44, 45, 46, 56, 58, 68, 69, 70].includes(tileIndex)) {
+      return TILE_PRIORITY.FENCE; // 4
+    }
+
+    // Path tiles (dirt paths 39-42 and stone path 43)
+    if (tileIndex >= 39 && tileIndex <= 43) {
+      return TILE_PRIORITY.PATH; // 3
+    }
+
+    // Decor tiles (includes items like wheelbarrow, coin, beehive, target, well, scarecrow, signs, crates, etc.)
+    if (
+      [
+        57, 83, 92, 93, 94, 95, 104, 105, 106, 107, 115, 116, 117, 118, 119,
+        127, 128, 129, 130, 131,
+      ].includes(tileIndex)
+    ) {
+      return TILE_PRIORITY.DECOR; // 2
+    }
+
+    // Forest/tree tiles
     if (
       (tileIndex >= 3 && tileIndex <= 23) ||
       (tileIndex >= 27 && tileIndex <= 35)
@@ -1213,13 +1233,12 @@ export class TinyTownScene extends Phaser.Scene {
       return TILE_PRIORITY.FOREST; // 1
     }
 
-    if ([57, 94, 95, 106, 107, 130, 131].includes(tileIndex)) {
-      return TILE_PRIORITY.DECOR; // 2
-    }
+    // Grass tiles (lowest priority)
     if (tileIndex >= 0 && tileIndex <= 2) {
       return TILE_PRIORITY.GRASS; // 0
     }
-    return TILE_PRIORITY.GRASS; // 0
+
+    return TILE_PRIORITY.GRASS; // 0 - default for unknown tiles
   }
 
   public renameLayer(oldName: string, newName: string) {

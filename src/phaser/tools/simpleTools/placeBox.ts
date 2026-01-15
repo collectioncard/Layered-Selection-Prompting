@@ -40,8 +40,49 @@ export class boxPlacer implements FeatureGenerator {
       }
 
       const tileNum = Number(tileID);
-      if (isNaN(tileNum) || tileNum < 0) {
+      if (Number.isNaN(tileNum) || tileNum < 0) {
         return `Error: Invalid tile ID "${tileID}". Must be a positive number.`;
+      }
+
+      // Get global selection start for verification
+      const globalStartX = Math.min(
+        scene.selectionStart?.x ?? 0,
+        scene.selectionEnd?.x ?? 0,
+      );
+      const globalStartY = Math.min(
+        scene.selectionStart?.y ?? 0,
+        scene.selectionEnd?.y ?? 0,
+      );
+
+      // Check for potential priority conflicts before placing
+      const newPriority = scene.getTilePriority(tileNum);
+      let blockedCount = 0;
+      const expectedTiles = filled
+        ? width * height
+        : width * 2 + height * 2 - 4;
+
+      for (let dy = 0; dy < height; dy++) {
+        for (let dx = 0; dx < width; dx++) {
+          // Skip inner tiles if not filled
+          if (
+            !filled &&
+            dx > 0 &&
+            dx < width - 1 &&
+            dy > 0 &&
+            dy < height - 1
+          ) {
+            continue;
+          }
+
+          const gx = globalStartX + x + dx;
+          const gy = globalStartY + y + dy;
+          const existingTileId = scene.getTileAtGlobal(gx, gy);
+          const existingPriority = scene.getTilePriority(existingTileId);
+
+          if (existingTileId >= 0 && newPriority < existingPriority) {
+            blockedCount++;
+          }
+        }
       }
 
       try {
@@ -56,21 +97,62 @@ export class boxPlacer implements FeatureGenerator {
         await scene.putFeatureAtSelection(result);
 
         const tileName = scene.tileDictionary?.[tileNum] ?? `tile #${tileNum}`;
-        const tilesPlaced = filled
-          ? width * height
-          : width * 2 + height * 2 - 4;
         const boxType = filled
           ? "filled rectangle"
           : "hollow rectangle (outline)";
 
-        return (
-          `Box placed successfully!\n` +
-          `- Position: (${x}, ${y}) to (${x + width - 1}, ${y + height - 1}) in local coordinates\n` +
-          `- Size: ${width}x${height} tiles\n` +
-          `- Type: ${boxType}\n` +
-          `- Tile: ${tileName} (ID: ${tileID})\n` +
-          `- Tiles placed: ${tilesPlaced}`
-        );
+        // Verify how many tiles were actually placed
+        let actualPlaced = 0;
+        for (let dy = 0; dy < height; dy++) {
+          for (let dx = 0; dx < width; dx++) {
+            // Skip inner tiles if not filled
+            if (
+              !filled &&
+              dx > 0 &&
+              dx < width - 1 &&
+              dy > 0 &&
+              dy < height - 1
+            ) {
+              continue;
+            }
+
+            const gx = globalStartX + x + dx;
+            const gy = globalStartY + y + dy;
+            const actualTileId = scene.getTileAtGlobal(gx, gy);
+
+            if (actualTileId === tileNum) {
+              actualPlaced++;
+            }
+          }
+        }
+
+        if (actualPlaced === expectedTiles) {
+          return (
+            `Box placed successfully!\n` +
+            `- Position: (${x}, ${y}) to (${x + width - 1}, ${y + height - 1}) in local coordinates\n` +
+            `- Size: ${width}x${height} tiles\n` +
+            `- Type: ${boxType}\n` +
+            `- Tile: ${tileName} (ID: ${tileID})\n` +
+            `- Tiles placed: ${actualPlaced}`
+          );
+        } else if (actualPlaced > 0) {
+          return (
+            `Box partially placed.\n` +
+            `- Position: (${x}, ${y}) to (${x + width - 1}, ${y + height - 1}) in local coordinates\n` +
+            `- Size: ${width}x${height} tiles\n` +
+            `- Type: ${boxType}\n` +
+            `- Tile: ${tileName} (ID: ${tileID})\n` +
+            `- Tiles placed: ${actualPlaced}/${expectedTiles}\n` +
+            `- Note: ${expectedTiles - actualPlaced} tiles were blocked by higher-priority existing tiles.`
+          );
+        } else {
+          return (
+            `Box placement failed!\n` +
+            `- Position: (${x}, ${y}) to (${x + width - 1}, ${y + height - 1}) in local coordinates\n` +
+            `- Tile: ${tileName} (ID: ${tileID})\n` +
+            `- Reason: All ${expectedTiles} positions are blocked by higher-priority tiles. Use clear tool first.`
+          );
+        }
       } catch (e) {
         console.error("putFeatureAtSelection failed:", e);
         return `Error: Failed to place box - ${e instanceof Error ? e.message : "Unknown error"}`;
