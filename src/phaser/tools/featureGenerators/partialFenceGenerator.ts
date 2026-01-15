@@ -24,33 +24,64 @@ const tileIDs: Record<number, number> = {
 export class PartialFenceGenerator implements FeatureGenerator {
   sceneGetter: () => TinyTownScene;
 
+  // Track last generated fence details
+  private lastFenceX = 0;
+  private lastFenceY = 0;
+  private lastHorizontalLength = 0;
+  private lastVerticalLength = 0;
+  private lastGateX = 0;
+  private lastGateOnTop = false;
+
   constructor(sceneGetter: () => TinyTownScene) {
     this.sceneGetter = sceneGetter;
   }
 
   toolCall = tool(
-    async () => {
-      console.log("Adding partial fence");
-      let scene = this.sceneGetter();
+    async ({ edges }: { edges?: string }) => {
+      console.log("Adding partial fence with edges:", edges);
+      const scene = this.sceneGetter();
       if (scene == null) {
         console.log("getSceneFailed");
-        return "Tool Failed, no reference to scene.";
+        return "Error: Tool Failed - No reference to scene.";
       }
-      let selection = scene.getSelection();
+
+      const selection = scene.getSelection();
+
+      // Validate minimum size
+      const minSize = 3 + PADDING * 2;
+      if (selection.width < minSize || selection.height < minSize) {
+        return `Error: Selection too small for fence. Minimum required: ${minSize}x${minSize} tiles.`;
+      }
+
       try {
-        await scene.putFeatureAtSelection(this.generate(selection, []));
-        return `Partial fence added`;
+        const result = this.generate(selection, { edges });
+        await scene.putFeatureAtSelection(result);
+
+        return (
+          `Partial fence placed successfully!\n` +
+          `- Position: starts at local (${this.lastFenceX}, ${this.lastFenceY})\n` +
+          `- Horizontal length: ${this.lastHorizontalLength} tiles\n` +
+          `- Vertical length: ${this.lastVerticalLength} tiles\n` +
+          `- Gate: placed on ${this.lastGateOnTop ? "top" : "bottom"} edge at x=${this.lastGateX}\n` +
+          `- Note: This fence has an open right side.`
+        );
       } catch (e) {
         console.error("putFeatureAtSelection failed:", e);
-        return `Failed to place partial fence`;
+        return `Error: Failed to place partial fence - ${e instanceof Error ? e.message : "Unknown error"}`;
       }
     },
     {
       name: "broken_fence",
       schema: z.object({
-        edges: z.string().optional(),
+        edges: z
+          .string()
+          .optional()
+          .describe("Which edges to include (not fully implemented yet)"),
       }),
-      description: "Adds a partial fence to the map.",
+      description:
+        "Adds a partial/broken fence with an open side. " +
+        "Creates an L-shaped or U-shaped fence enclosure. " +
+        "Gate is automatically placed on top or bottom edge.",
     },
   );
 
@@ -72,6 +103,12 @@ export class PartialFenceGenerator implements FeatureGenerator {
       PADDING,
       mapSection.height - verticalLength - PADDING,
     );
+
+    // Store for feedback
+    this.lastFenceX = fenceX;
+    this.lastFenceY = fenceY;
+    this.lastHorizontalLength = horizontalLength;
+    this.lastVerticalLength = verticalLength;
 
     let grid: number[][] = Array.from({ length: mapSection.height }, () =>
       Array(mapSection.width).fill(-1),
@@ -98,7 +135,9 @@ export class PartialFenceGenerator implements FeatureGenerator {
       fenceX + 1,
       fenceX + horizontalLength - 2,
     );
-    const gateY = Math.random() < 0.5 ? fenceY : fenceY + verticalLength - 1;
+    this.lastGateOnTop = Math.random() < 0.5;
+    const gateY = this.lastGateOnTop ? fenceY : fenceY + verticalLength - 1;
+    this.lastGateX = gateX;
     grid[gateY][gateX] = 69;
 
     return {

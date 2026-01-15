@@ -4,469 +4,987 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="/icons/mushroom.png" />
-    <title>Selection Generation</title>
+    <title>PEWTER - Procedural Environment Builder</title>
   </head>
   <body>
-    <div id="control-buttons">
-      <div id="sidebar">
-        <button id="get-Coords">Get Selection</button>
-        <button id="toggle-highlights">Highlights</button>
-        <button>b3</button>
-        <button id="toggle-tree">☰ Layers</button>
-        <button>b4</button>
-        <div id="selection-controls">
-          <button id="all-selection">Select All</button>
-          <button id="clear-selected-tiles">Clear Tiles</button>
-          <button id="clear-selection">Clear Selection</button>
-          <button id="mode-selection">Mode: Select</button>
+    <header id="app-header">
+      <div class="header-left">
+        <span class="logo">🏘️</span>
+        <h1>PEWTER</h1>
+        <span class="tagline"
+          >Procedural Environment With Tile-based Editing & Rendering</span
+        >
+      </div>
+      <div class="header-right">
+        <button id="saveMap" class="header-btn">💾 Save</button>
+        <button id="loadMap" class="header-btn">📂 Load</button>
+      </div>
+    </header>
+
+    <main id="app-container">
+      <section id="map-area">
+        <div id="map-toolbar">
+          <button id="all-selection" title="Select entire map">
+            ⬚ Select All
+          </button>
+          <button id="clear-selection" title="Clear current selection">
+            ✕ Clear Selection
+          </button>
+          <button
+            id="clear-selected-tiles"
+            class="danger"
+            title="Erase tiles in selection"
+          >
+            🗑 Clear Tiles
+          </button>
         </div>
-        <div id="layer-tree" class="hidden"></div>
-      </div>
-    </div>
-    <div id="mapStack">
-      <div id="map">
-        <button id="saveMap">Save Map Content</button>
-        <button id="loadMap">Load Map Content</button>
-      </div>
-      <div id="tile-picker">
-        <h3>Tile Palette</h3>
-        <details>
-          <summary>Background Tiles</summary>
-          <div class="tile-category">
-            <button class="tile-button" data-tileid="0">
-              <img src="phaserAssets/Assets/Tiles/tile_0000.png" /> Grass 1
-            </button>
-            <button class="tile-button" data-tileid="1">
-              <img src="phaserAssets/Assets/Tiles/tile_0001.png" /> Grass 2
-            </button>
-            <button class="tile-button" data-tileid="2">
-              <img src="phaserAssets/Assets/Tiles/tile_0002.png" /> Grass 3
-            </button>
-            <button class="tile-button" data-tileid="12">
-              <img src="phaserAssets/Assets/Tiles/tile_0012.png" /> Dirt Patch 1
-            </button>
-            <button class="tile-button" data-tileid="13">
-              <img src="phaserAssets/Assets/Tiles/tile_0013.png" /> Dirt Patch 2
-            </button>
-            <button class="tile-button" data-tileid="14">
-              <img src="phaserAssets/Assets/Tiles/tile_0014.png" /> Dirt Patch 3
-            </button>
-            <button class="tile-button" data-tileid="24">
-              <img src="phaserAssets/Assets/Tiles/tile_0024.png" /> Dirt Patch 4
-            </button>
-            <button class="tile-button" data-tileid="25">
-              <img src="phaserAssets/Assets/Tiles/tile_0025.png" /> Dirt Patch 5
-            </button>
-            <button class="tile-button" data-tileid="26">
-              <img src="phaserAssets/Assets/Tiles/tile_0026.png" /> Dirt Patch 6
-            </button>
-            <button class="tile-button" data-tileid="36">
-              <img src="phaserAssets/Assets/Tiles/tile_0036.png" /> Dirt Patch 7
-            </button>
-            <button class="tile-button" data-tileid="37">
-              <img src="phaserAssets/Assets/Tiles/tile_0037.png" /> Dirt Patch 8
-            </button>
-            <button class="tile-button" data-tileid="38">
-              <img src="phaserAssets/Assets/Tiles/tile_0038.png" /> Dirt Patch 9
-            </button>
-            <button class="tile-button" data-tileid="39">
-              <img src="phaserAssets/Assets/Tiles/tile_0039.png" /> Dirt Path 1
-            </button>
-            <button class="tile-button" data-tileid="40">
-              <img src="phaserAssets/Assets/Tiles/tile_0040.png" /> Dirt Path 2
-            </button>
-            <button class="tile-button" data-tileid="41">
-              <img src="phaserAssets/Assets/Tiles/tile_0041.png" /> Dirt Path 3
-            </button>
-            <button class="tile-button" data-tileid="42">
-              <img src="phaserAssets/Assets/Tiles/tile_0042.png" /> Dirt Path 4
-            </button>
-            <button class="tile-button" data-tileid="43">
-              <img src="phaserAssets/Assets/Tiles/tile_0043.png" /> Stone Path 1
-            </button>
-          </div>
-        </details>
+        <div id="map"></div>
+        <div id="coord-display">Global: (-, -)</div>
+      </section>
 
-        <details>
-          <summary>Plants</summary>
-          <div class="tile-category">
-            <button class="tile-button" data-tileid="3">
-              <img src="phaserAssets/Assets/Tiles/tile_0003.png" /> Yellow Tree
-              1.1
-            </button>
-            <button class="tile-button" data-tileid="15">
-              <img src="phaserAssets/Assets/Tiles/tile_0015.png" /> Yellow Tree
-              1.2
-            </button>
-            <button class="tile-button" data-tileid="4">
-              <img src="phaserAssets/Assets/Tiles/tile_0004.png" /> Green Tree
-              1.1
-            </button>
-            <button class="tile-button" data-tileid="16">
-              <img src="phaserAssets/Assets/Tiles/tile_0016.png" /> Green Tree
-              1.2
-            </button>
-            <button class="tile-button" data-tileid="5">
-              <img src="phaserAssets/Assets/Tiles/tile_0005.png" /> Green Bush
-            </button>
-            <button class="tile-button" data-tileid="6">
-              <img src="phaserAssets/Assets/Tiles/tile_0006.png" /> Green Forest
-              2.1
-            </button>
-            <button class="tile-button" data-tileid="8">
-              <img src="phaserAssets/Assets/Tiles/tile_0008.png" /> Green Forest
-              2.2
-            </button>
-            <button class="tile-button" data-tileid="30">
-              <img src="phaserAssets/Assets/Tiles/tile_0030.png" /> Green Forest
-              2.3
-            </button>
-            <button class="tile-button" data-tileid="32">
-              <img src="phaserAssets/Assets/Tiles/tile_0032.png" /> Green Forest
-              2.4
-            </button>
-            <button class="tile-button" data-tileid="7">
-              <img src="phaserAssets/Assets/Tiles/tile_0007.png" /> Temp Text
-            </button>
-            <button class="tile-button" data-tileid="9">
-              <img src="phaserAssets/Assets/Tiles/tile_0009.png" /> Temp Text
-            </button>
-            <button class="tile-button" data-tileid="10">
-              <img src="phaserAssets/Assets/Tiles/tile_0010.png" /> Temp Text
-            </button>
-            <button class="tile-button" data-tileid="11">
-              <img src="phaserAssets/Assets/Tiles/tile_0011.png" /> Temp Text
-            </button>
-            <button class="tile-button" data-tileid="17">
-              <img src="phaserAssets/Assets/Tiles/tile_0017.png" /> Temp Text
-            </button>
-            <button class="tile-button" data-tileid="18">
-              <img src="phaserAssets/Assets/Tiles/tile_0018.png" /> Temp Text
-            </button>
-            <button class="tile-button" data-tileid="19">
-              <img src="phaserAssets/Assets/Tiles/tile_0019.png" /> Temp Text
-            </button>
-            <button class="tile-button" data-tileid="20">
-              <img src="phaserAssets/Assets/Tiles/tile_0020.png" /> Temp Text
-            </button>
-            <button class="tile-button" data-tileid="21">
-              <img src="phaserAssets/Assets/Tiles/tile_0021.png" /> Temp Text
-            </button>
-            <button class="tile-button" data-tileid="22">
-              <img src="phaserAssets/Assets/Tiles/tile_0022.png" /> Temp Text
-            </button>
-            <button class="tile-button" data-tileid="23">
-              <img src="phaserAssets/Assets/Tiles/tile_0023.png" /> Temp Text
-            </button>
-            <button class="tile-button" data-tileid="27">
-              <img src="phaserAssets/Assets/Tiles/tile_0027.png" /> Temp Text
-            </button>
-            <button class="tile-button" data-tileid="28">
-              <img src="phaserAssets/Assets/Tiles/tile_0028.png" /> Temp Text
-            </button>
-            <button class="tile-button" data-tileid="29">
-              <img src="phaserAssets/Assets/Tiles/tile_0029.png" /> Temp Text
-            </button>
-            <button class="tile-button" data-tileid="31">
-              <img src="phaserAssets/Assets/Tiles/tile_0031.png" /> Temp Text
-            </button>
-            <button class="tile-button" data-tileid="33">
-              <img src="phaserAssets/Assets/Tiles/tile_0033.png" /> Temp Text
-            </button>
-            <button class="tile-button" data-tileid="34">
-              <img src="phaserAssets/Assets/Tiles/tile_0034.png" /> Temp Text
-            </button>
-            <button class="tile-button" data-tileid="35">
-              <img src="phaserAssets/Assets/Tiles/tile_0035.png" /> Temp Text
-            </button>
-          </div>
-        </details>
+      <aside id="right-panel">
+        <div id="panel-tabs">
+          <button
+            type="button"
+            class="panel-tab active"
+            data-tab="ai"
+            id="tab-ai"
+          >
+            🤖 AI Assistant
+          </button>
+          <button
+            type="button"
+            class="panel-tab"
+            data-tab="manual"
+            id="tab-manual"
+          >
+            🎨 Manual Edit
+          </button>
+        </div>
 
-        <details>
-          <summary>Fences</summary>
-          <div class="tile-category">
-            <button class="tile-button" data-tileid="44">
-              <img src="phaserAssets/Assets/Tiles/tile_0044.png" /> Tile 44
-            </button>
-            <button class="tile-button" data-tileid="45">
-              <img src="phaserAssets/Assets/Tiles/tile_0045.png" /> Tile 45
-            </button>
-            <button class="tile-button" data-tileid="46">
-              <img src="phaserAssets/Assets/Tiles/tile_0046.png" /> Tile 46
-            </button>
-            <button class="tile-button" data-tileid="47">
-              <img src="phaserAssets/Assets/Tiles/tile_0047.png" /> Tile 47
-            </button>
-            <button class="tile-button" data-tileid="56">
-              <img src="phaserAssets/Assets/Tiles/tile_0056.png" /> Tile 56
-            </button>
-            <button class="tile-button" data-tileid="58">
-              <img src="phaserAssets/Assets/Tiles/tile_0058.png" /> Tile 58
-            </button>
-            <button class="tile-button" data-tileid="59">
-              <img src="phaserAssets/Assets/Tiles/tile_0059.png" /> Tile 59
-            </button>
-            <button class="tile-button" data-tileid="68">
-              <img src="phaserAssets/Assets/Tiles/tile_0068.png" /> Tile 68
-            </button>
-            <button class="tile-button" data-tileid="69">
-              <img src="phaserAssets/Assets/Tiles/tile_0069.png" /> Tile 69
-            </button>
-            <button class="tile-button" data-tileid="70">
-              <img src="phaserAssets/Assets/Tiles/tile_0070.png" /> Tile 70
-            </button>
-            <button class="tile-button" data-tileid="71">
-              <img src="phaserAssets/Assets/Tiles/tile_0071.png" /> Tile 71
-            </button>
-            <button class="tile-button" data-tileid="80">
-              <img src="phaserAssets/Assets/Tiles/tile_0080.png" /> Tile 80
-            </button>
-            <button class="tile-button" data-tileid="81">
-              <img src="phaserAssets/Assets/Tiles/tile_0081.png" /> Tile 81
-            </button>
-            <button class="tile-button" data-tileid="82">
-              <img src="phaserAssets/Assets/Tiles/tile_0082.png" /> Tile 82
-            </button>
-          </div>
-        </details>
+        <div id="ai-panel" class="tab-content active">
+          <ul id="chat-history"></ul>
+          <form id="llm-chat-form" autocomplete="off">
+            <input
+              type="text"
+              id="llm-chat-input"
+              placeholder="Ask AI to build something..."
+            />
+            <button type="submit" id="llm-chat-submit">Send</button>
+          </form>
+        </div>
 
-        <details>
-          <summary>Structures</summary>
-          <div class="tile-category">
-            <button class="tile-button" data-tileid="48">
-              <img src="phaserAssets/Assets/Tiles/tile_0048.png" /> Tile 48
-            </button>
-            <button class="tile-button" data-tileid="49">
-              <img src="phaserAssets/Assets/Tiles/tile_0049.png" /> Tile 49
-            </button>
-            <button class="tile-button" data-tileid="50">
-              <img src="phaserAssets/Assets/Tiles/tile_0050.png" /> Tile 50
-            </button>
-            <button class="tile-button" data-tileid="51">
-              <img src="phaserAssets/Assets/Tiles/tile_0051.png" /> Tile 51
-            </button>
-            <button class="tile-button" data-tileid="52">
-              <img src="phaserAssets/Assets/Tiles/tile_0052.png" /> Tile 52
-            </button>
-            <button class="tile-button" data-tileid="53">
-              <img src="phaserAssets/Assets/Tiles/tile_0053.png" /> Tile 53
-            </button>
-            <button class="tile-button" data-tileid="54">
-              <img src="phaserAssets/Assets/Tiles/tile_0054.png" /> Tile 54
-            </button>
-            <button class="tile-button" data-tileid="55">
-              <img src="phaserAssets/Assets/Tiles/tile_0055.png" /> Tile 55
-            </button>
-            <button class="tile-button" data-tileid="60">
-              <img src="phaserAssets/Assets/Tiles/tile_0060.png" /> Tile 60
-            </button>
-            <button class="tile-button" data-tileid="61">
-              <img src="phaserAssets/Assets/Tiles/tile_0061.png" /> Tile 61
-            </button>
-            <button class="tile-button" data-tileid="62">
-              <img src="phaserAssets/Assets/Tiles/tile_0062.png" /> Tile 62
-            </button>
-            <button class="tile-button" data-tileid="63">
-              <img src="phaserAssets/Assets/Tiles/tile_0063.png" /> Tile 63
-            </button>
-            <button class="tile-button" data-tileid="64">
-              <img src="phaserAssets/Assets/Tiles/tile_0064.png" /> Tile 64
-            </button>
-            <button class="tile-button" data-tileid="65">
-              <img src="phaserAssets/Assets/Tiles/tile_0065.png" /> Tile 65
-            </button>
-            <button class="tile-button" data-tileid="66">
-              <img src="phaserAssets/Assets/Tiles/tile_0066.png" /> Tile 66
-            </button>
-            <button class="tile-button" data-tileid="67">
-              <img src="phaserAssets/Assets/Tiles/tile_0067.png" /> Tile 67
-            </button>
-            <button class="tile-button" data-tileid="72">
-              <img src="phaserAssets/Assets/Tiles/tile_0072.png" /> Tile 72
-            </button>
-            <button class="tile-button" data-tileid="73">
-              <img src="phaserAssets/Assets/Tiles/tile_0073.png" /> Tile 73
-            </button>
-            <button class="tile-button" data-tileid="74">
-              <img src="phaserAssets/Assets/Tiles/tile_0074.png" /> Tile 74
-            </button>
-            <button class="tile-button" data-tileid="75">
-              <img src="phaserAssets/Assets/Tiles/tile_0075.png" /> Tile 75
-            </button>
-            <button class="tile-button" data-tileid="76">
-              <img src="phaserAssets/Assets/Tiles/tile_0076.png" /> Tile 76
-            </button>
-            <button class="tile-button" data-tileid="77">
-              <img src="phaserAssets/Assets/Tiles/tile_0077.png" /> Tile 77
-            </button>
-            <button class="tile-button" data-tileid="78">
-              <img src="phaserAssets/Assets/Tiles/tile_0078.png" /> Tile 78
-            </button>
-            <button class="tile-button" data-tileid="79">
-              <img src="phaserAssets/Assets/Tiles/tile_0079.png" /> Tile 79
-            </button>
-            <button class="tile-button" data-tileid="84">
-              <img src="phaserAssets/Assets/Tiles/tile_0084.png" /> Tile 84
-            </button>
-            <button class="tile-button" data-tileid="85">
-              <img src="phaserAssets/Assets/Tiles/tile_0085.png" /> Tile 85
-            </button>
-            <button class="tile-button" data-tileid="86">
-              <img src="phaserAssets/Assets/Tiles/tile_0086.png" /> Tile 86
-            </button>
-            <button class="tile-button" data-tileid="87">
-              <img src="phaserAssets/Assets/Tiles/tile_0087.png" /> Tile 87
-            </button>
-            <button class="tile-button" data-tileid="88">
-              <img src="phaserAssets/Assets/Tiles/tile_0088.png" /> Tile 88
-            </button>
-            <button class="tile-button" data-tileid="89">
-              <img src="phaserAssets/Assets/Tiles/tile_0089.png" /> Tile 89
-            </button>
-            <button class="tile-button" data-tileid="90">
-              <img src="phaserAssets/Assets/Tiles/tile_0090.png" /> Tile 90
-            </button>
-            <button class="tile-button" data-tileid="91">
-              <img src="phaserAssets/Assets/Tiles/tile_0091.png" /> Tile 91
-            </button>
-            <button class="tile-button" data-tileid="96">
-              <img src="phaserAssets/Assets/Tiles/tile_0096.png" /> Tile 96
-            </button>
-            <button class="tile-button" data-tileid="97">
-              <img src="phaserAssets/Assets/Tiles/tile_0097.png" /> Tile 97
-            </button>
-            <button class="tile-button" data-tileid="98">
-              <img src="phaserAssets/Assets/Tiles/tile_0098.png" /> Tile 98
-            </button>
-            <button class="tile-button" data-tileid="99">
-              <img src="phaserAssets/Assets/Tiles/tile_0099.png" /> Tile 99
-            </button>
-            <button class="tile-button" data-tileid="100">
-              <img src="phaserAssets/Assets/Tiles/tile_0100.png" /> Tile 100
-            </button>
-            <button class="tile-button" data-tileid="101">
-              <img src="phaserAssets/Assets/Tiles/tile_0101.png" /> Tile 101
-            </button>
-            <button class="tile-button" data-tileid="102">
-              <img src="phaserAssets/Assets/Tiles/tile_0102.png" /> Tile 102
-            </button>
-            <button class="tile-button" data-tileid="103">
-              <img src="phaserAssets/Assets/Tiles/tile_0103.png" /> Tile 103
-            </button>
-            <button class="tile-button" data-tileid="108">
-              <img src="phaserAssets/Assets/Tiles/tile_0108.png" /> Tile 108
-            </button>
-            <button class="tile-button" data-tileid="109">
-              <img src="phaserAssets/Assets/Tiles/tile_0109.png" /> Tile 109
-            </button>
-            <button class="tile-button" data-tileid="110">
-              <img src="phaserAssets/Assets/Tiles/tile_0110.png" /> Tile 110
-            </button>
-            <button class="tile-button" data-tileid="111">
-              <img src="phaserAssets/Assets/Tiles/tile_0111.png" /> Tile 111
-            </button>
-            <button class="tile-button" data-tileid="112">
-              <img src="phaserAssets/Assets/Tiles/tile_0112.png" /> Tile 112
-            </button>
-            <button class="tile-button" data-tileid="113">
-              <img src="phaserAssets/Assets/Tiles/tile_0113.png" /> Tile 113
-            </button>
-            <button class="tile-button" data-tileid="114">
-              <img src="phaserAssets/Assets/Tiles/tile_0114.png" /> Tile 114
-            </button>
-            <button class="tile-button" data-tileid="120">
-              <img src="phaserAssets/Assets/Tiles/tile_0120.png" /> Tile 120
-            </button>
-            <button class="tile-button" data-tileid="121">
-              <img src="phaserAssets/Assets/Tiles/tile_0121.png" /> Tile 121
-            </button>
-            <button class="tile-button" data-tileid="122">
-              <img src="phaserAssets/Assets/Tiles/tile_0122.png" /> Tile 122
-            </button>
-            <button class="tile-button" data-tileid="123">
-              <img src="phaserAssets/Assets/Tiles/tile_0123.png" /> Tile 123
-            </button>
-            <button class="tile-button" data-tileid="124">
-              <img src="phaserAssets/Assets/Tiles/tile_0124.png" /> Tile 124
-            </button>
-            <button class="tile-button" data-tileid="125">
-              <img src="phaserAssets/Assets/Tiles/tile_0125.png" /> Tile 125
-            </button>
-            <button class="tile-button" data-tileid="126">
-              <img src="phaserAssets/Assets/Tiles/tile_0126.png" /> Tile 126
-            </button>
-          </div>
-        </details>
+        <div id="manual-panel" class="tab-content hidden">
+          <div id="tile-picker-inline">
+            <div id="selected-tile-preview">
+              <span>Click a tile to select it</span>
+            </div>
 
-        <details>
-          <summary>Decoration</summary>
-          <div class="tile-category">
-            <button class="tile-button" data-tileid="57">
-              <img src="phaserAssets/Assets/Tiles/tile_0057.png" /> Tile 57
-            </button>
-            <button class="tile-button" data-tileid="83">
-              <img src="phaserAssets/Assets/Tiles/tile_0083.png" /> Tile 83
-            </button>
-            <button class="tile-button" data-tileid="92">
-              <img src="phaserAssets/Assets/Tiles/tile_0092.png" /> Tile 92
-            </button>
-            <button class="tile-button" data-tileid="104">
-              <img src="phaserAssets/Assets/Tiles/tile_0104.png" /> Tile 104
-            </button>
-            <button class="tile-button" data-tileid="93">
-              <img src="phaserAssets/Assets/Tiles/tile_0093.png" /> Tile 93
-            </button>
-            <button class="tile-button" data-tileid="94">
-              <img src="phaserAssets/Assets/Tiles/tile_0094.png" /> Tile 94
-            </button>
-            <button class="tile-button" data-tileid="95">
-              <img src="phaserAssets/Assets/Tiles/tile_0095.png" /> Tile 95
-            </button>
-            <button class="tile-button" data-tileid="105">
-              <img src="phaserAssets/Assets/Tiles/tile_0105.png" /> Tile 105
-            </button>
-            <button class="tile-button" data-tileid="106">
-              <img src="phaserAssets/Assets/Tiles/tile_0106.png" /> Tile 106
-            </button>
-            <button class="tile-button" data-tileid="107">
-              <img src="phaserAssets/Assets/Tiles/tile_0107.png" /> Tile 107
-            </button>
-            <button class="tile-button" data-tileid="115">
-              <img src="phaserAssets/Assets/Tiles/tile_0115.png" /> Tile 115
-            </button>
-            <button class="tile-button" data-tileid="116">
-              <img src="phaserAssets/Assets/Tiles/tile_0116.png" /> Tile 116
-            </button>
-            <button class="tile-button" data-tileid="117">
-              <img src="phaserAssets/Assets/Tiles/tile_0117.png" /> Tile 117
-            </button>
-            <button class="tile-button" data-tileid="118">
-              <img src="phaserAssets/Assets/Tiles/tile_0118.png" /> Tile 118
-            </button>
-            <button class="tile-button" data-tileid="119">
-              <img src="phaserAssets/Assets/Tiles/tile_0119.png" /> Tile 119
-            </button>
-            <button class="tile-button" data-tileid="127">
-              <img src="phaserAssets/Assets/Tiles/tile_0127.png" /> Tile 127
-            </button>
-            <button class="tile-button" data-tileid="128">
-              <img src="phaserAssets/Assets/Tiles/tile_0128.png" /> Tile 128
-            </button>
-            <button class="tile-button" data-tileid="129">
-              <img src="phaserAssets/Assets/Tiles/tile_0129.png" /> Tile 129
-            </button>
-            <button class="tile-button" data-tileid="130">
-              <img src="phaserAssets/Assets/Tiles/tile_0130.png" /> Tile 130
-            </button>
-            <button class="tile-button" data-tileid="131">
-              <img src="phaserAssets/Assets/Tiles/tile_0131.png" /> Tile 131
-            </button>
-          </div>
-        </details>
-      </div>
-    </div>
+            <details open>
+              <summary>Ground</summary>
+              <div class="tile-grid">
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="0"
+                  title="Grass"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0000.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="1"
+                  title="Grass+"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0001.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="2"
+                  title="Flowers"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0002.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="39"
+                  title="Path"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0039.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="40"
+                  title="Path TR"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0040.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="41"
+                  title="Path BR"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0041.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="42"
+                  title="Path BL"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0042.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="43"
+                  title="Stone"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0043.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="12"
+                  title="Dirt TL"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0012.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="13"
+                  title="Dirt T"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0013.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="14"
+                  title="Dirt TR"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0014.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="24"
+                  title="Dirt L"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0024.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="25"
+                  title="Dirt"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0025.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="26"
+                  title="Dirt R"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0026.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="36"
+                  title="Dirt BL"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0036.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="37"
+                  title="Dirt B"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0037.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="38"
+                  title="Dirt BR"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0038.png" />
+                </button>
+              </div>
+            </details>
 
-    <div id="layer-context-menu">
+            <details>
+              <summary>Trees & Plants</summary>
+              <div class="tile-grid">
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="5"
+                  title="Bush"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0005.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="17"
+                  title="Plant"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0017.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="27"
+                  title="Sm Yellow"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0027.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="28"
+                  title="Sm Green"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0028.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="29"
+                  title="Mushroom"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0029.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="3"
+                  title="Yw Tree T"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0003.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="15"
+                  title="Yw Tree B"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0015.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="4"
+                  title="Gn Tree T"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0004.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="16"
+                  title="Gn Tree B"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0016.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="6"
+                  title="Forest TL"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0006.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="8"
+                  title="Forest TR"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0008.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="30"
+                  title="Forest BL"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0030.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="32"
+                  title="Forest BR"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0032.png" />
+                </button>
+              </div>
+            </details>
+
+            <details>
+              <summary>Fences</summary>
+              <div class="tile-grid">
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="44"
+                  title="Fence TL"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0044.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="45"
+                  title="Fence T"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0045.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="46"
+                  title="Fence TR"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0046.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="56"
+                  title="Fence L"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0056.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="69"
+                  title="Gate"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0069.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="58"
+                  title="Fence R"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0058.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="68"
+                  title="Fence BL"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0068.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="70"
+                  title="Fence BR"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0070.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="47"
+                  title="Post T"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0047.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="59"
+                  title="Post M"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0059.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="71"
+                  title="Post B"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0071.png" />
+                </button>
+              </div>
+            </details>
+
+            <details>
+              <summary>House - Red Roof</summary>
+              <div class="tile-grid">
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="52"
+                  title="Roof TL"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0052.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="53"
+                  title="Roof T"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0053.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="54"
+                  title="Roof TR"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0054.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="55"
+                  title="Chimney"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0055.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="64"
+                  title="Roof BL"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0064.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="65"
+                  title="Roof B"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0065.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="66"
+                  title="Roof BR"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0066.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="67"
+                  title="Awning"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0067.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="76"
+                  title="Wall L"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0076.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="77"
+                  title="Wall"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0077.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="79"
+                  title="Wall R"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0079.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="88"
+                  title="Window"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0088.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="89"
+                  title="Door"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0089.png" />
+                </button>
+              </div>
+            </details>
+
+            <details>
+              <summary>House - Grey Roof</summary>
+              <div class="tile-grid">
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="48"
+                  title="Roof TL"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0048.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="49"
+                  title="Roof T"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0049.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="50"
+                  title="Roof TR"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0050.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="51"
+                  title="Chimney"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0051.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="60"
+                  title="Roof BL"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0060.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="61"
+                  title="Roof B"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0061.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="62"
+                  title="Roof BR"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0062.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="63"
+                  title="Awning"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0063.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="72"
+                  title="Wall L"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0072.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="73"
+                  title="Wall"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0073.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="75"
+                  title="Wall R"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0075.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="84"
+                  title="Window"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0084.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="85"
+                  title="Door"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0085.png" />
+                </button>
+              </div>
+            </details>
+
+            <details>
+              <summary>Decor</summary>
+              <div class="tile-grid">
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="57"
+                  title="Wheelbarrow"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0057.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="83"
+                  title="Wood Pile"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0083.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="92"
+                  title="Rock"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0092.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="93"
+                  title="Stump"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0093.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="94"
+                  title="Hay"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0094.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="95"
+                  title="Pumpkin"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0095.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="104"
+                  title="Barrel"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0104.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="105"
+                  title="Box"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0105.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="106"
+                  title="Well T"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0106.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="107"
+                  title="Scarecrow"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0107.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="118"
+                  title="Well B"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0118.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="119"
+                  title="Scarecrow B"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0119.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="115"
+                  title="Bench L"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0115.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="116"
+                  title="Bench M"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0116.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="117"
+                  title="Bench R"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0117.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="127"
+                  title="Lantern"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0127.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="128"
+                  title="Basket"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0128.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="129"
+                  title="Pot"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0129.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="130"
+                  title="Sign"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0130.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="131"
+                  title="Crate"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0131.png" />
+                </button>
+              </div>
+            </details>
+
+            <details>
+              <summary>Castle</summary>
+              <div class="tile-grid">
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="96"
+                  title="Roof TL"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0096.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="97"
+                  title="Roof T"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0097.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="98"
+                  title="Roof TR"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0098.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="108"
+                  title="Wall L"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0108.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="109"
+                  title="Wall"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0109.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="110"
+                  title="Wall R"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0110.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="120"
+                  title="Roof BL"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0120.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="121"
+                  title="Roof B"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0121.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="122"
+                  title="Roof BR"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0122.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="99"
+                  title="Roof L"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0099.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="100"
+                  title="Roof M"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0100.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="101"
+                  title="Roof R"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0101.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="102"
+                  title="Sm Roof"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0102.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="103"
+                  title="Ladder"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0103.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="111"
+                  title="Gate TL"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0111.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="112"
+                  title="Gate TR"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0112.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="123"
+                  title="Gate BL"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0123.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="124"
+                  title="Gate BR"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0124.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="125"
+                  title="Window"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0125.png" />
+                </button>
+                <button
+                  type="button"
+                  class="tile-btn"
+                  data-tileid="126"
+                  title="Stone"
+                >
+                  <img src="phaserAssets/Assets/Tiles/tile_0126.png" />
+                </button>
+              </div>
+            </details>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <!-- Hidden elements for layers (keeping for future use) -->
+    <div id="layer-tree" class="hidden"></div>
+    <div id="layer-context-menu" class="hidden">
       <ul>
         <li id="ctx-rename">✏️ Rename Layer</li>
         <li id="ctx-delete">🗑️ Delete Layer</li>
@@ -475,7 +993,7 @@
     <div id="delete-modal" class="modal hidden">
       <div class="modal-content">
         <p>
-          How would you like to delete “<span id="modal-layer-name"></span>”?
+          How would you like to delete "<span id="modal-layer-name"></span>"?
         </p>
         <div class="modal-buttons">
           <button id="btn-delete-only">Remove Layer Only</button>
@@ -484,15 +1002,7 @@
         </div>
       </div>
     </div>
-    <div id="llm-chat">
-      <div>
-        <ul id="chat-history"></ul>
-        <form id="llm-chat-form" autocomplete="off">
-          <input type="text" id="llm-chat-input" />
-          <button type="submit" id="llm-chat-submit">Send</button>
-        </form>
-      </div>
-    </div>
-    <script type="module" src="/src/main.js"></script>
+
+    <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

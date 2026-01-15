@@ -16,29 +16,49 @@ export class FullUndo implements FeatureGenerator {
 
   toolCall = tool(
     async ({}) => {
-      console.log("undoing last task");
-      let scene = this.sceneGetter();
+      console.log("undoing all tool calls from this turn");
+      const scene = this.sceneGetter();
       if (scene == null) {
         console.log("getSceneFailed");
-        return "Tool Failed, no reference to scene.";
+        return "Error: Tool Failed - No reference to scene.";
       }
-      console.log("last data");
-      console.log(scene.LastData);
 
-      // the way that the undo works is that it replaces the whole map with a save state
-      // in effect it puts the whole previous map onto the map.
+      // Use TurnStartData to undo ALL tool calls made in the turn
+      console.log("TurnStartData:", scene.TurnStartData);
+
+      if (!scene.TurnStartData || scene.TurnStartData.grid.length === 0) {
+        return "Error: Nothing to undo. No previous state available.";
+      }
+
+      // Restore to the state at the start of the turn
       try {
-        await scene.putFeatureAtSelection(scene.LastData, true, true, true);
-        return `undid last task`; // this is how the LLM knows that the last action was an undo.
+        await scene.putFeatureAtSelection(
+          scene.TurnStartData,
+          true,
+          true,
+          true,
+        );
+
+        // Mark that we're starting fresh (next tool call should save new turn start)
+        scene.markNewTurn();
+
+        return (
+          `Undo successful!\n` +
+          `- All changes from this turn have been reverted.\n` +
+          `- The map has been restored to its state before any tool calls were made.`
+        );
       } catch (e) {
         console.error("putFeatureAtSelection failed:", e);
-        return `Failed to undo`;
+        return `Error: Failed to undo - ${e instanceof Error ? e.message : "Unknown error"}`;
       }
     },
     {
       name: "undo",
       schema: z.object({}),
-      description: "Undoes the last action.",
+      description:
+        "Reverts ALL modifications made during the current turn. " +
+        "This undoes every tool call made since the user's last message, " +
+        "restoring the map to its state before any changes were made.",
     },
   );
 

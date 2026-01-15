@@ -1,4 +1,4 @@
-import { getChatResponse, initilizeLLM } from "./apiConnector.ts";
+import { getChatResponse } from "./apiConnector.ts";
 import { AIMessage, BaseMessage, HumanMessage } from "@langchain/core/messages";
 
 const chatHistoryList: Element = document.querySelector("#chat-history")!;
@@ -9,9 +9,15 @@ const chatSubmitButton: HTMLButtonElement =
 
 export const chatHistory: BaseMessage[] = [];
 
-initilizeLLM(chatHistory).then(() => {
-  console.log(chatHistory);
-});
+// Track whether the model is currently responding
+export let isModelResponding: boolean = false;
+
+// Function to mark new turn in the scene (will be set by main.ts)
+let markNewTurnCallback: (() => void) | null = null;
+
+export function setMarkNewTurnCallback(callback: () => void): void {
+  markNewTurnCallback = callback;
+}
 
 document
   .querySelector("#llm-chat-form")!
@@ -24,22 +30,24 @@ document
     if (!userMessage) return;
     userInputField.value = "";
 
+    // Mark the start of a new turn before processing the message
+    if (markNewTurnCallback) {
+      markNewTurnCallback();
+    }
+
     addChatMessage(new HumanMessage(userMessage));
 
     document.dispatchEvent(new CustomEvent("chatResponseStart"));
-    let botResponseEntry: string;
+    let botResponseEntry;
 
     try {
       botResponseEntry = await getChatResponse(chatHistory);
-      if (botResponseEntry.startsWith("Error:")) {
-        addChatMessage(
-          new AIMessage(
-            "Oops, there was a problem" +
-              botResponseEntry.replace(/^Error:\s*/, ""),
-          ),
-        );
-      } else {
-        addChatMessage(new AIMessage(botResponseEntry));
+
+      //Add all of the new responses from the bot to the chat
+      for (const message of botResponseEntry.messages.slice(
+        chatHistory.length,
+      )) {
+        addChatMessage(message);
       }
     } catch (exception) {
       const errorMessage =
@@ -58,7 +66,16 @@ export function addChatMessage(chatMessage: BaseMessage): HTMLLIElement {
   let displayContent = chatMessage.content;
   if (typeof displayContent === "object") {
     console.log("Detected object message in addChatMessage:", displayContent);
-    displayContent = JSON.stringify(displayContent);
+    //I think we can just assume that the first element is the message?
+    if (displayContent[0].type === "text") {
+      displayContent =
+        displayContent[0].text +
+        "(+" +
+        (displayContent.length - 1) +
+        " tool call(s))";
+    } else {
+      displayContent = JSON.stringify(displayContent);
+    }
   }
 
   //display message in chat box
@@ -83,12 +100,14 @@ observer.observe(chatHistoryList, {
 
 // don't allow users to send messages while the bot is responding
 document.addEventListener("chatResponseStart", () => {
+  isModelResponding = true;
   chatInputField.disabled = true;
   chatSubmitButton.disabled = true;
   chatInputField.value = "Thinking...";
 });
 
 document.addEventListener("chatResponseEnd", () => {
+  isModelResponding = false;
   chatInputField.disabled = false;
   chatSubmitButton.disabled = false;
   chatInputField.value = "";
@@ -106,15 +125,9 @@ export async function sendSystemMessage(message: string): Promise<void> {
       systemMessage,
     ]);
 
-    if (botResponseEntry.startsWith("Error:")) {
-      addChatMessage(
-        new AIMessage(
-          "Oops, there was a problem: " +
-            botResponseEntry.replace(/^Error:\s*/, ""),
-        ),
-      );
-    } else {
-      addChatMessage(new AIMessage(botResponseEntry));
+    //Add all of the new responses from the bot to the chat
+    for (const message of botResponseEntry.messages.slice(chatHistory.length)) {
+      addChatMessage(message);
     }
   } catch (exception) {
     const errorMessage =
@@ -127,6 +140,6 @@ export async function sendSystemMessage(message: string): Promise<void> {
 
 export function clearChatHistory(): void {
   chatHistoryList.innerHTML = "";
-  chatHistory.length = 1; // Clear the chat history array
+  chatHistory.length = 0; // Clear the chat history array completely
   console.log(chatHistory);
 }
