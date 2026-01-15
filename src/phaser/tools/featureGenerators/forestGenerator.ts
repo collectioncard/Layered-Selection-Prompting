@@ -101,8 +101,8 @@ export class ForestGenerator implements FeatureGenerator {
     args?: z.infer<typeof ForestGenerator.forestArgsSchema>,
   ): completedSection {
     const grid = mapSection.grid;
-    const width = args?.width ?? 0;
-    const height = args?.height ?? 0;
+    const width = args?.width ?? mapSection.width;
+    const height = args?.height ?? mapSection.height;
     const xstrt = args?.x ?? 0;
     const ystrt = args?.y ?? 0;
     console.log(grid);

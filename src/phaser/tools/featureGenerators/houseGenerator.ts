@@ -177,8 +177,6 @@ interface HouseGenerationResult extends completedSection {
   };
 }
 
-let points_of_interest = new Map();
-
 export class HouseGenerator implements FeatureGenerator {
   sceneGetter: () => TinyTownScene;
 
@@ -315,6 +313,7 @@ export class HouseGenerator implements FeatureGenerator {
     args?: z.infer<typeof HouseGenerator.houseArgsSchema>,
   ): HouseGenerationResult {
     const grid = mapSection.grid;
+    const points_of_interest = new Map<string, { x: number; y: number }>();
     console.log(grid);
 
     // Use provided dimensions or default to 4x4

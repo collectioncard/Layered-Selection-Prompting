@@ -140,6 +140,6 @@ export async function sendSystemMessage(message: string): Promise<void> {
 
 export function clearChatHistory(): void {
   chatHistoryList.innerHTML = "";
-  chatHistory.length = 1; // Clear the chat history array
+  chatHistory.length = 0; // Clear the chat history array completely
   console.log(chatHistory);
 }

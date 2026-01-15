@@ -2,7 +2,6 @@ import "./style.css";
 import { createGame, TinyTownScene } from "./phaser/TinyTownScene.ts";
 
 //LLM Management
-import "./modelChat/chatbox.ts";
 import {
   clearChatHistory,
   setMarkNewTurnCallback,
@@ -113,8 +112,7 @@ document.addEventListener("chatResponseEnd", () => {
 let draggedElement: HTMLElement | null = null;
 
 export function getScene(): TinyTownScene {
-  if (!gameInstance) throw Error("Scene does not exist >:(");
-  console.log(gameInstance.scene.getScene("TinyTown"));
+  if (!gameInstance) throw new Error("Scene does not exist >:(");
   return gameInstance.scene.getScene("TinyTown") as TinyTownScene;
 }
 
@@ -190,7 +188,7 @@ document.getElementById("get-Coords")?.addEventListener("click", () => {
       " Selection End: ",
       scene.selectionEnd,
     );
-    var text =
+    const text =
       "[Selection Starts at: (" +
       scene.selectionStart.x +
       ", " +
