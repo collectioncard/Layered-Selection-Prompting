@@ -51,7 +51,16 @@ export function addChatMessage(chatMessage: BaseMessage): HTMLLIElement {
   let displayContent = chatMessage.content;
   if (typeof displayContent === "object") {
     console.log("Detected object message in addChatMessage:", displayContent);
-    displayContent = JSON.stringify(displayContent);
+    //I think we can just assume that the first element is the message?
+    if (displayContent[0].type === "text") {
+      displayContent =
+        displayContent[0].text +
+        "(+" +
+        (displayContent.length - 1) +
+        " tool call(s))";
+    } else {
+      displayContent = JSON.stringify(displayContent);
+    }
   }
 
   //display message in chat box
