@@ -149,7 +149,23 @@ button:focus-visible {
   flex-direction: column;
   gap: 0.5rem;
 }
+#layer-buttons.layer-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
 
+.layer-button {
+  border: 1px solid #555;
+}
+
+.layer-button.active {
+  border-color: #127803;
+  box-shadow: 0 0 0 1px #127803 inset;
+}
+.layer-button[data-layer="1"] { border-left: 6px solid #ff3e3e; }
+.layer-button[data-layer="2"] { border-left: 6px solid #3e7bff; }
+.layer-button[data-layer="3"] { border-left: 6px solid #2ecc71; }
 #layer-tree {
   position: absolute;
   top: 16rem;
