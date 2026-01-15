@@ -979,6 +979,67 @@ export class TinyTownScene extends Phaser.Scene {
     this.drawOverlayMask();
   }
 
+  /**
+   * Checks all named layers and deletes any that are empty (contain no tiles with index >= 0).
+   * @returns Array of layer names that were deleted
+   */
+  private checkAndDeleteEmptyLayers(): string[] {
+    const deletedLayers: string[] = [];
+    const layersToCheck = Array.from(this.namedLayers.keys());
+
+    for (const name of layersToCheck) {
+      const info = this.namedLayers.get(name);
+      if (!info) continue;
+
+      let hasTiles = false;
+      const { width, height } = info.bounds;
+
+      // Check all tiles in the layer
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          const tile = info.layer.getTileAt(x, y);
+          if (tile && tile.index >= 0) {
+            hasTiles = true;
+            break;
+          }
+        }
+        if (hasTiles) break;
+      }
+
+      if (!hasTiles) {
+        this.deleteLayer(name);
+        deletedLayers.push(name);
+      }
+    }
+
+    if (deletedLayers.length > 0) {
+      console.log(
+        `Deleted ${deletedLayers.length} empty layer(s): ${deletedLayers.join(", ")}`,
+      );
+    }
+
+    return deletedLayers;
+  }
+
+  /**
+   * Clears all tiles from the featureLayer and deletes all named layers.
+   */
+  public clearAllTiles(): void {
+    // Clear featureLayer
+    if (this.featureLayer) {
+      this.featureLayer.forEachTile((tile) => {
+        this.featureLayer.removeTileAt(tile.x, tile.y);
+      });
+    }
+
+    // Delete all named layers (this will also clear their tiles)
+    const layerNames = Array.from(this.namedLayers.keys());
+    layerNames.forEach((name) => this.deleteLayer(name));
+
+    this.clearSelection();
+    console.log("Cleared all tiles and deleted all layers");
+  }
+
   // Draw a dark translucent mask everywhere outside activeLayerBounds
   private drawOverlayMask() {
     this.overlayMask.clear();
@@ -1272,6 +1333,11 @@ export class TinyTownScene extends Phaser.Scene {
       }
     }
     this.pruneBrokenTrees(changed);
+
+    // Check for and delete empty layers after clearing operations
+    if (acceptneg && generatedData.name === "ClearBox") {
+      this.checkAndDeleteEmptyLayers();
+    }
 
     if (
       this.AUTOLAYER &&

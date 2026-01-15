@@ -96,6 +96,14 @@ document
     }
   });
 
+// Clear all tiles button
+document.getElementById("clear-all-tiles")?.addEventListener("click", () => {
+  const scene = getScene();
+  if (scene) {
+    scene.clearAllTiles();
+  }
+});
+
 // Clear selection button
 document.getElementById("clear-selection")?.addEventListener("click", () => {
   const scene = getScene();
