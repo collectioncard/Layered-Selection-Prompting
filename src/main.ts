@@ -18,13 +18,7 @@ import { TilePlacer } from "./phaser/tools/simpleTools/placeTile.ts";
 import { FullUndo } from "./phaser/tools/simpleTools/undo.ts";
 import { boxPlacer } from "./phaser/tools/simpleTools/placeBox.ts";
 import { boxClear } from "./phaser/tools/simpleTools/clear.ts";
-import {
-  ListLayersTool,
-  NameLayerTool,
-  SelectLayerTool,
-  RenameLayerTool,
-  DeleteLayerTool,
-} from "./phaser/tools/simpleTools/layerTools.ts";
+
 import {
   FindTileTool,
   GetSelectionInfoTool,
@@ -52,11 +46,6 @@ const generators = {
   undo: new FullUndo(getScene),
   box: new boxPlacer(getScene),
   clear: new boxClear(getScene),
-  name_layer: new NameLayerTool(getScene),
-  select_layer: new SelectLayerTool(getScene),
-  rename_layer: new RenameLayerTool(getScene),
-  delete_layer: new DeleteLayerTool(getScene),
-  list_layers: new ListLayersTool(getScene),
   // Query tools
   find_tile: new FindTileTool(getScene),
   get_selection_info: new GetSelectionInfoTool(getScene),
