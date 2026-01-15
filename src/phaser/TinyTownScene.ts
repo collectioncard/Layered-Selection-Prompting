@@ -168,12 +168,45 @@ export class TinyTownScene extends Phaser.Scene {
   private selectedTileSet = new Set<number>();
   public tileDictionary!: { [key: number]: string };
 
+  // LastData stores state before the most recent tool call (for individual undo)
   public LastData: completedSection = {
     name: "DefaultSelection",
     description: "Full Default",
     grid: [],
     points_of_interest: new Map(),
   };
+
+  // TurnStartData stores state at the START of a turn (before any tool calls in the turn)
+  // This allows undoing ALL tool calls made in a single turn
+  public TurnStartData: completedSection = {
+    name: "TurnStart",
+    description: "State at turn start",
+    grid: [],
+    points_of_interest: new Map(),
+  };
+
+  // Flag to track if we need to save TurnStartData (true = next tool call should save turn start state)
+  private shouldSaveTurnStart: boolean = true;
+
+  // Flag to lock selection changes while model is responding
+  private selectionLocked: boolean = false;
+
+  /**
+   * Call this at the start of a new turn (when user sends a message).
+   * This ensures the next tool call will save the turn start state.
+   */
+  public markNewTurn(): void {
+    this.shouldSaveTurnStart = true;
+    console.log("New turn marked - next tool call will save TurnStartData");
+  }
+
+  /**
+   * Lock or unlock selection changes (used while model is responding)
+   */
+  public setSelectionLocked(locked: boolean): void {
+    this.selectionLocked = locked;
+    console.log(`Selection ${locked ? "locked" : "unlocked"}`);
+  }
 
   constructor() {
     super("TinyTown");
@@ -277,10 +310,16 @@ export class TinyTownScene extends Phaser.Scene {
     this.input.on("pointerupoutside", this.endSelection, this);
     this.input.on("pointerup", this.endSelection, this);
 
-    // cursor change outside active layer
+    // cursor change outside active layer or when selection is locked
     this.input.on("pointermove", (pointer: Phaser.Input.Pointer) => {
       if (this.isPlacingMode) {
         this.input.setDefaultCursor("default");
+        return;
+      }
+
+      // Show not-allowed cursor when selection is locked (model responding)
+      if (this.selectionLocked) {
+        this.input.setDefaultCursor("not-allowed");
         return;
       }
 
@@ -305,7 +344,15 @@ export class TinyTownScene extends Phaser.Scene {
     // Setup pointer movement
     this.input.on("pointermove", this.highlightTile, this);
 
-    //place the selected tile upon mouse click
+    // Track if we're dragging to place tiles
+    let isPlacingDrag = false;
+
+    // Disable context menu on the canvas to allow right-click
+    this.game.canvas.addEventListener("contextmenu", (e) => {
+      e.preventDefault();
+    });
+
+    // Place tile on mouse down (left click to place, right click to delete)
     this.input.on("pointerdown", (pointer: Phaser.Input.Pointer) => {
       if (this.isPlacingMode) {
         const worldPoint = this.cameras.main.getWorldPoint(
@@ -316,31 +363,95 @@ export class TinyTownScene extends Phaser.Scene {
         const y: number = Math.floor(worldPoint.y / (16 * this.SCALE));
 
         if (
-          this.selectedTileId !== null &&
           x >= 0 &&
           x < this.CANVAS_WIDTH &&
           y >= 0 &&
           y < this.CANVAS_HEIGHT
         ) {
-          this.featureLayer?.putTileAt(this.selectedTileId, x, y);
+          if (pointer.rightButtonDown()) {
+            // Right click - delete tile
+            this.featureLayer?.putTileAt(-1, x, y);
+            isPlacingDrag = true;
+          } else if (pointer.leftButtonDown() && this.selectedTileId !== null) {
+            // Left click - place tile
+            this.featureLayer?.putTileAt(this.selectedTileId, x, y);
+            isPlacingDrag = true;
+          }
         }
       } else {
         this.startSelection(pointer);
       }
     });
 
-    // create/refrence button to change modes (move to main later)
-    const modeButton = document.getElementById("mode-selection");
-    if (modeButton) {
-      modeButton.textContent = `Mode: ${this.isPlacingMode ? "Place" : "Select"}`;
-      modeButton.addEventListener("click", () => {
-        this.isPlacingMode = !this.isPlacingMode;
-        modeButton!.textContent = `Mode: ${this.isPlacingMode ? "Place" : "Select"}`;
-      });
+    // Continue placing/deleting tiles while dragging
+    this.input.on("pointermove", (pointer: Phaser.Input.Pointer) => {
+      if (this.isPlacingMode && isPlacingDrag && pointer.isDown) {
+        const worldPoint = this.cameras.main.getWorldPoint(
+          pointer.x,
+          pointer.y,
+        );
+        const x: number = Math.floor(worldPoint.x / (16 * this.SCALE));
+        const y: number = Math.floor(worldPoint.y / (16 * this.SCALE));
+
+        if (
+          x >= 0 &&
+          x < this.CANVAS_WIDTH &&
+          y >= 0 &&
+          y < this.CANVAS_HEIGHT
+        ) {
+          if (pointer.rightButtonDown()) {
+            // Right click drag - delete tiles
+            this.featureLayer?.putTileAt(-1, x, y);
+          } else if (pointer.leftButtonDown() && this.selectedTileId !== null) {
+            // Left click drag - place tiles
+            this.featureLayer?.putTileAt(this.selectedTileId, x, y);
+          }
+        }
+      }
+    });
+
+    // Stop placing on mouse up
+    this.input.on("pointerup", () => {
+      isPlacingDrag = false;
+    });
+
+    this.input.on("pointerupoutside", () => {
+      isPlacingDrag = false;
+    });
+  }
+
+  /**
+   * Set the placing mode (true = placing tiles, false = selection mode)
+   */
+  public setPlacingMode(placing: boolean): void {
+    this.isPlacingMode = placing;
+    console.log(`Placing mode: ${placing ? "enabled" : "disabled"}`);
+
+    // Hide/show selection box based on mode
+    if (placing) {
+      this.selectionBox.clear();
+      this.selectionBox.setVisible(false);
+    } else {
+      this.selectionBox.setVisible(true);
+      // Redraw selection box if there's an active selection
+      if (
+        this.selectedTiles.dimensions.width > 0 &&
+        this.selectedTiles.dimensions.height > 0
+      ) {
+        this.isSelecting = true;
+        this.drawSelectionBox();
+        this.isSelecting = false;
+      }
     }
   }
 
   startSelection(pointer: Phaser.Input.Pointer): void {
+    // Don't allow selection changes while model is responding
+    if (this.selectionLocked) {
+      console.log("Selection is locked while model is responding");
+      return;
+    }
+
     // Convert screen coordinates to tile coordinates
     const worldPoint = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
     const x: number = Math.floor(worldPoint.x / (16 * this.SCALE));
@@ -445,9 +556,9 @@ export class TinyTownScene extends Phaser.Scene {
     const endX = Math.max(this.selectionStart.x, this.selectionEnd.x);
     const endY = Math.max(this.selectionStart.y, this.selectionEnd.y);
 
-    // These define the height and width of the selection box
-    const selectionWidth = endX - startX;
-    const selectionHeight = endY - startY;
+    // These define the height and width of the selection box (inclusive of both endpoints)
+    const selectionWidth = endX - startX + 1;
+    const selectionHeight = endY - startY + 1;
 
     // Helper to convert any global (x, y) to selection-local coordinates
     const toSelectionCoordinates = (x: number, y: number) => {
@@ -677,6 +788,209 @@ export class TinyTownScene extends Phaser.Scene {
       grid: this.selectedTiles.featureGrid.map((row) => [...row]),
       width: this.selectedTiles.dimensions.width,
       height: this.selectedTiles.dimensions.height,
+    };
+  }
+
+  /**
+   * Gets the combined grid (with tiles from all layers) for the current selection.
+   * This is useful for query tools that need to see what's actually rendered.
+   */
+  public getCombinedSelection(): {
+    grid: number[][];
+    width: number;
+    height: number;
+    startX: number;
+    startY: number;
+  } {
+    return {
+      grid: this.selectedTiles.combinedGrid.map((row) => [...row]),
+      width: this.selectedTiles.dimensions.width,
+      height: this.selectedTiles.dimensions.height,
+      startX: Math.min(this.selectionStart?.x ?? 0, this.selectionEnd?.x ?? 0),
+      startY: Math.min(this.selectionStart?.y ?? 0, this.selectionEnd?.y ?? 0),
+    };
+  }
+
+  /**
+   * Gets the CURRENT tile state from the actual tilemap (not cached).
+   * This is essential for detecting recently placed tiles before cache is updated.
+   */
+  public getCurrentTileState(): {
+    grid: number[][];
+    width: number;
+    height: number;
+    startX: number;
+    startY: number;
+  } {
+    const startX = Math.min(
+      this.selectionStart?.x ?? 0,
+      this.selectionEnd?.x ?? 0,
+    );
+    const startY = Math.min(
+      this.selectionStart?.y ?? 0,
+      this.selectionEnd?.y ?? 0,
+    );
+    const width = this.selectedTiles.dimensions.width;
+    const height = this.selectedTiles.dimensions.height;
+
+    // Build a fresh grid by reading directly from the tilemap layers
+    const grid: number[][] = [];
+
+    for (let y = 0; y < height; y++) {
+      const row: number[] = [];
+      for (let x = 0; x < width; x++) {
+        const worldX = startX + x;
+        const worldY = startY + y;
+
+        // Check named layers first
+        let tileId = -1;
+        for (const info of this.namedLayers.values()) {
+          const b = info.bounds;
+          if (
+            worldX >= b.x &&
+            worldX < b.x + b.width &&
+            worldY >= b.y &&
+            worldY < b.y + b.height
+          ) {
+            const localX = worldX - b.x;
+            const localY = worldY - b.y;
+            const tile = info.layer.getTileAt(localX, localY);
+            if (tile && tile.index >= 0) {
+              tileId = tile.index;
+              break;
+            }
+          }
+        }
+
+        // Check feature layer if not found in named layers
+        if (tileId === -1 && this.featureLayer) {
+          const tile = this.featureLayer.getTileAt(worldX, worldY);
+          if (tile && tile.index >= 0) {
+            tileId = tile.index;
+          }
+        }
+
+        // Check grass layer if still not found
+        if (tileId === -1 && this.grassLayer) {
+          const tile = this.grassLayer.getTileAt(worldX, worldY);
+          if (tile && tile.index >= 0) {
+            tileId = tile.index;
+          }
+        }
+
+        row.push(tileId);
+      }
+      grid.push(row);
+    }
+
+    return { grid, width, height, startX, startY };
+  }
+
+  /**
+   * Gets the tile ID at a specific global coordinate.
+   * Returns the combined tile (checks named layers, then feature layer, then grass).
+   */
+  public getTileAtGlobal(x: number, y: number): number {
+    if (x < 0 || x >= this.CANVAS_WIDTH || y < 0 || y >= this.CANVAS_HEIGHT) {
+      return -1;
+    }
+
+    // Check named layers first
+    for (const info of this.namedLayers.values()) {
+      const b = info.bounds;
+      if (x >= b.x && x < b.x + b.width && y >= b.y && y < b.y + b.height) {
+        const localX = x - b.x;
+        const localY = y - b.y;
+        const tile = info.layer.getTileAt(localX, localY);
+        if (tile && tile.index >= 0) {
+          return tile.index;
+        }
+      }
+    }
+
+    // Check feature layer
+    if (this.featureLayer) {
+      const tile = this.featureLayer.getTileAt(x, y);
+      if (tile && tile.index >= 0) {
+        return tile.index;
+      }
+    }
+
+    // Check grass layer
+    if (this.grassLayer) {
+      const tile = this.grassLayer.getTileAt(x, y);
+      if (tile && tile.index >= 0) {
+        return tile.index;
+      }
+    }
+
+    return -1;
+  }
+
+  /**
+   * Finds all positions of a specific tile ID in the current selection.
+   */
+  public findTileInSelection(
+    tileID: number,
+  ): { globalX: number; globalY: number; localX: number; localY: number }[] {
+    const results: {
+      globalX: number;
+      globalY: number;
+      localX: number;
+      localY: number;
+    }[] = [];
+    const startX = Math.min(
+      this.selectionStart?.x ?? 0,
+      this.selectionEnd?.x ?? 0,
+    );
+    const startY = Math.min(
+      this.selectionStart?.y ?? 0,
+      this.selectionEnd?.y ?? 0,
+    );
+
+    for (let y = 0; y < this.selectedTiles.dimensions.height; y++) {
+      for (let x = 0; x < this.selectedTiles.dimensions.width; x++) {
+        if (this.selectedTiles.combinedGrid[y]?.[x] === tileID) {
+          results.push({
+            globalX: startX + x,
+            globalY: startY + y,
+            localX: x,
+            localY: y,
+          });
+        }
+      }
+    }
+    return results;
+  }
+
+  /**
+   * Gets statistics about tiles in the current selection.
+   */
+  public getSelectionStats(): {
+    tileCounts: Map<number, number>;
+    emptyCount: number;
+    totalTiles: number;
+  } {
+    const tileCounts = new Map<number, number>();
+    let emptyCount = 0;
+
+    for (let y = 0; y < this.selectedTiles.dimensions.height; y++) {
+      for (let x = 0; x < this.selectedTiles.dimensions.width; x++) {
+        const tileId = this.selectedTiles.combinedGrid[y]?.[x] ?? -1;
+        if (tileId === -1) {
+          emptyCount++;
+        } else {
+          tileCounts.set(tileId, (tileCounts.get(tileId) ?? 0) + 1);
+        }
+      }
+    }
+
+    return {
+      tileCounts,
+      emptyCount,
+      totalTiles:
+        this.selectedTiles.dimensions.width *
+        this.selectedTiles.dimensions.height,
     };
   }
 
@@ -1071,7 +1385,7 @@ export class TinyTownScene extends Phaser.Scene {
 
       for (const info of this.namedLayers.values()) {
         const { x: lx, y: ly, width: w, height: h } = info.bounds;
-        // Loop over that layer’s entire rectangle
+        // Loop over that layer's entire rectangle
         for (let localY = 0; localY < h; localY++) {
           for (let localX = 0; localX < w; localX++) {
             const t = info.layer.getTileAt(localX, localY);
@@ -1083,6 +1397,17 @@ export class TinyTownScene extends Phaser.Scene {
             }
           }
         }
+      }
+
+      // If this is the first tool call of the turn, also save TurnStartData
+      if (this.shouldSaveTurnStart) {
+        this.TurnStartData = {
+          name: "Turn Start State",
+          description: "State before all tool calls in this turn",
+          grid: this.LastData.grid.map((row) => [...row]), // Deep copy
+          points_of_interest: new Map(this.LastData.points_of_interest),
+        };
+        this.shouldSaveTurnStart = false;
       }
     }
 
@@ -1380,6 +1705,53 @@ export class TinyTownScene extends Phaser.Scene {
     const worldPoint = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
     const x: number = Math.floor(worldPoint.x / (16 * this.SCALE));
     const y: number = Math.floor(worldPoint.y / (16 * this.SCALE));
+
+    // Update coordinate display
+    const coordDisplay = document.getElementById("coord-display");
+    if (coordDisplay) {
+      if (x >= 0 && x < this.CANVAS_WIDTH && y >= 0 && y < this.CANVAS_HEIGHT) {
+        // Get tile info
+        const tileId = this.getTileAtGlobal(x, y);
+        const tileName =
+          tileId >= 0
+            ? (this.tileDictionary?.[tileId] ?? `#${tileId}`)
+            : "empty";
+
+        // Calculate local coordinates if there's an active selection
+        let localInfo = "";
+        if (
+          this.selectedTiles.dimensions.width > 0 &&
+          this.selectedTiles.dimensions.height > 0
+        ) {
+          const selStartX = Math.min(
+            this.selectionStart?.x ?? 0,
+            this.selectionEnd?.x ?? 0,
+          );
+          const selStartY = Math.min(
+            this.selectionStart?.y ?? 0,
+            this.selectionEnd?.y ?? 0,
+          );
+          const selEndX = selStartX + this.selectedTiles.dimensions.width - 1;
+          const selEndY = selStartY + this.selectedTiles.dimensions.height - 1;
+
+          // Check if cursor is within selection
+          if (
+            x >= selStartX &&
+            x <= selEndX &&
+            y >= selStartY &&
+            y <= selEndY
+          ) {
+            const localX = x - selStartX;
+            const localY = y - selStartY;
+            localInfo = ` | Local: (${localX}, ${localY})`;
+          }
+        }
+
+        coordDisplay.textContent = `Global: (${x}, ${y})${localInfo} - ${tileName}`;
+      } else {
+        coordDisplay.textContent = `(-, -)`;
+      }
+    }
 
     // Only highlight if within map bounds
     if (x >= 0 && x < this.CANVAS_WIDTH && y >= 0 && y < this.CANVAS_HEIGHT) {

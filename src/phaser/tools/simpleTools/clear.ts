@@ -2,10 +2,10 @@ import {
   completedSection,
   FeatureGenerator,
   generatorInput,
-} from "../featureGenerators/GeneratorInterface";
+} from "../IGenerator.ts";
 import { tool } from "@langchain/core/tools";
 import { z } from "zod";
-import { TinyTownScene } from "../TinyTownScene";
+import { TinyTownScene } from "../../TinyTownScene.ts";
 
 export class boxClear implements FeatureGenerator {
   sceneGetter: () => TinyTownScene;
@@ -16,36 +16,62 @@ export class boxClear implements FeatureGenerator {
 
   toolCall = tool(
     async ({ x, y, width, height }) => {
-      console.log("clear: ", x, y);
-      let scene = this.sceneGetter();
+      console.log("clear: ", x, y, width, height);
+      const scene = this.sceneGetter();
       if (scene == null) {
         console.log("getSceneFailed");
-        return "Tool Failed, no reference to scene.";
+        return "Error: Tool Failed - No reference to scene.";
       }
-      let selection = scene.getSelection();
+
+      const selection = scene.getSelection();
+
+      // Validate parameters
+      if (x < 0 || y < 0) {
+        return `Error: Starting position (${x}, ${y}) cannot be negative.`;
+      }
+
+      if (width < 1 || height < 1) {
+        return `Error: Width (${width}) and height (${height}) must be at least 1.`;
+      }
+
+      // Check if area fits within selection
+      if (x + width > selection.width || y + height > selection.height) {
+        return `Error: Clear area from (${x}, ${y}) with size ${width}x${height} exceeds selection bounds (${selection.width}x${selection.height}).`;
+      }
+
       console.log(selection);
       try {
-        await scene.putFeatureAtSelection(
-          this.generate(selection, [x, y, width, height]),
-          false,
-          true,
+        const result = this.generate(selection, [x, y, width, height]);
+        await scene.putFeatureAtSelection(result, false, true);
+
+        const tilesCleared = width * height;
+
+        return (
+          `Area cleared successfully!\n` +
+          `- Position: (${x}, ${y}) to (${x + width - 1}, ${y + height - 1}) in local coordinates\n` +
+          `- Size: ${width}x${height} tiles\n` +
+          `- Total tiles cleared: ${tilesCleared}`
         );
-        return `cleared at: ${[x, y]} with width: ${width} and height: ${height}`;
       } catch (e) {
         console.error("putFeatureAtSelection failed:", e);
-        return `Failed to clear`;
+        return `Error: Failed to clear area - ${e instanceof Error ? e.message : "Unknown error"}`;
       }
     },
     {
       name: "ClearBox",
       schema: z.object({
-        x: z.number(),
-        y: z.number(),
-        width: z.number(),
-        height: z.number(),
+        x: z
+          .number()
+          .describe("X coordinate of top-left corner to start clearing"),
+        y: z
+          .number()
+          .describe("Y coordinate of top-left corner to start clearing"),
+        width: z.number().min(1).describe("Width of area to clear in tiles"),
+        height: z.number().min(1).describe("Height of area to clear in tiles"),
       }),
       description:
-        "clears a rectangular area of the map defined by its top-left corner local coordinates (x,y), width, and height, clearing all cells and deleting their contents",
+        "Clears a rectangular area by removing all tiles within the specified bounds. " +
+        "Coordinates are in local selection space. Use this to erase mistakes or prepare areas for new features.",
     },
   );
 

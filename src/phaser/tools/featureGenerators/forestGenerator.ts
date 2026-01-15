@@ -52,32 +52,47 @@ export class ForestGenerator implements FeatureGenerator {
     async (args: z.infer<typeof ForestGenerator.forestArgsSchema>) => {
       console.log("Generating forest with args:", args);
       const scene = this.sceneGetter();
-      if (!scene) return "Tool Failed: No reference to scene.";
+      if (!scene) return "Error: Tool Failed - No reference to scene.";
 
       const selection = scene.getSelection();
 
-      // Resize grid if specified
-      // if (args.width && args.height) {
-      //   selection.width = args.width;
-      //   selection.height = args.height;
-      //   selection.grid = Array.from({ length: args.height }, () =>
-      //     Array(args.width).fill(-1)
-      //   );
-      // }
+      if (selection.width < 1 || selection.height < 1) {
+        return "Error: No valid selection. Please select an area first.";
+      }
 
       try {
-        await scene.putFeatureAtSelection(this.generate(selection, args));
-        return `Forest added`;
+        const result = this.generate(selection, args);
+        await scene.putFeatureAtSelection(result);
+
+        // Count what was actually placed
+        const width = args?.width ?? selection.width;
+        const height = args?.height ?? selection.height;
+        const startX = args?.x ?? 0;
+        const startY = args?.y ?? 0;
+
+        return (
+          `Forest successfully placed!\n` +
+          `- Area: ${width}x${height} tiles starting at local (${startX}, ${startY})\n` +
+          `- Extra mushrooms placed: ${args?.mushrooms ?? 0}\n` +
+          `- Extra yellow trees placed: ${args?.yellowTrees ?? 0}\n` +
+          `- Extra green trees placed: ${args?.greenTrees ?? 0}\n` +
+          `- Random foliage density: ~80% coverage with mixed tree types and bushes`
+        );
       } catch (e) {
         console.error("putFeatureAtSelection failed:", e);
-        return `Forest not added`;
+        return `Error: Failed to place forest - ${e instanceof Error ? e.message : "Unknown error"}`;
       }
     },
     {
       name: "forest",
       schema: ForestGenerator.forestArgsSchema,
       description:
-        "Adds a forest to the map. Optional args: x, y, width, height, mushrooms, yellowTrees, greenTrees.",
+        "Adds a forest with random trees, bushes, and mushrooms. Parameters:\n" +
+        "- x, y: local position within selection (optional, default 0,0)\n" +
+        "- width, height: forest dimensions (optional, uses selection size)\n" +
+        "- mushrooms: extra mushrooms to add (optional, 0-100)\n" +
+        "- yellowTrees: extra yellow trees to add (optional, 0-100)\n" +
+        "- greenTrees: extra green trees to add (optional, 0-100)",
     },
   );
 

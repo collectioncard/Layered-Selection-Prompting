@@ -9,6 +9,16 @@ const chatSubmitButton: HTMLButtonElement =
 
 export const chatHistory: BaseMessage[] = [];
 
+// Track whether the model is currently responding
+export let isModelResponding: boolean = false;
+
+// Function to mark new turn in the scene (will be set by main.ts)
+let markNewTurnCallback: (() => void) | null = null;
+
+export function setMarkNewTurnCallback(callback: () => void): void {
+  markNewTurnCallback = callback;
+}
+
 document
   .querySelector("#llm-chat-form")!
   .addEventListener("submit", async function (event) {
@@ -19,6 +29,11 @@ document
     var userMessage = userInputField.value.trim();
     if (!userMessage) return;
     userInputField.value = "";
+
+    // Mark the start of a new turn before processing the message
+    if (markNewTurnCallback) {
+      markNewTurnCallback();
+    }
 
     addChatMessage(new HumanMessage(userMessage));
 
@@ -85,12 +100,14 @@ observer.observe(chatHistoryList, {
 
 // don't allow users to send messages while the bot is responding
 document.addEventListener("chatResponseStart", () => {
+  isModelResponding = true;
   chatInputField.disabled = true;
   chatSubmitButton.disabled = true;
   chatInputField.value = "Thinking...";
 });
 
 document.addEventListener("chatResponseEnd", () => {
+  isModelResponding = false;
   chatInputField.disabled = false;
   chatSubmitButton.disabled = false;
   chatInputField.value = "";

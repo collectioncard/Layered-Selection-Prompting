@@ -3,7 +3,10 @@ import { createGame, TinyTownScene } from "./phaser/TinyTownScene.ts";
 
 //LLM Management
 import "./modelChat/chatbox.ts";
-import { clearChatHistory } from "./modelChat/chatbox.ts";
+import {
+  clearChatHistory,
+  setMarkNewTurnCallback,
+} from "./modelChat/chatbox.ts";
 import { createNewAgent, registerTool } from "./modelChat/apiConnector.ts";
 
 //LLM Tools for registration
@@ -23,6 +26,14 @@ import {
   RenameLayerTool,
   DeleteLayerTool,
 } from "./phaser/tools/simpleTools/layerTools.ts";
+import {
+  FindTileTool,
+  GetSelectionInfoTool,
+  GetTileInfoTool,
+  SearchTilesByNameTool,
+  GetTileAtTool,
+  GetMapInfoTool,
+} from "./phaser/tools/simpleTools/queryTools.ts";
 
 ////////**** MAIN APP LOGIC ****////////
 
@@ -47,6 +58,13 @@ const generators = {
   rename_layer: new RenameLayerTool(getScene),
   delete_layer: new DeleteLayerTool(getScene),
   list_layers: new ListLayersTool(getScene),
+  // Query tools
+  find_tile: new FindTileTool(getScene),
+  get_selection_info: new GetSelectionInfoTool(getScene),
+  get_tile_info: new GetTileInfoTool(getScene),
+  search_tiles: new SearchTilesByNameTool(getScene),
+  get_tile_at: new GetTileAtTool(getScene),
+  get_map_info: new GetMapInfoTool(getScene),
 };
 Object.values(generators).forEach((generator) => {
   if (generator.toolCall) {
@@ -56,6 +74,41 @@ Object.values(generators).forEach((generator) => {
 
 //Once all tools are registered, we can init the LLM
 createNewAgent();
+
+// Set up the callback to mark new turns when user sends a message
+setMarkNewTurnCallback(() => {
+  try {
+    const scene = getScene();
+    if (scene) {
+      scene.markNewTurn();
+    }
+  } catch (e) {
+    console.warn("Could not mark new turn:", e);
+  }
+});
+
+// Lock selection while model is responding to prevent breaking state
+document.addEventListener("chatResponseStart", () => {
+  try {
+    const scene = getScene();
+    if (scene) {
+      scene.setSelectionLocked(true);
+    }
+  } catch (e) {
+    console.warn("Could not lock selection:", e);
+  }
+});
+
+document.addEventListener("chatResponseEnd", () => {
+  try {
+    const scene = getScene();
+    if (scene) {
+      scene.setSelectionLocked(false);
+    }
+  } catch (e) {
+    console.warn("Could not unlock selection:", e);
+  }
+});
 
 let draggedElement: HTMLElement | null = null;
 
@@ -86,13 +139,36 @@ document
   ?.addEventListener("click", () => {
     const scene = getScene();
     if (scene && scene.getSelection()) {
-      // args of offset are in local space.
-      generators.clear.toolCall.invoke({
-        x: 0,
-        y: 0,
-        width: scene.getSelection().width,
-        height: scene.getSelection().height,
-      });
+      const selection = scene.getSelection();
+
+      // Count only feature tiles (non-empty, non-grass tiles in the feature grid)
+      // Grass tiles are 0, 1, 2 - we only count tiles that will actually be cleared
+      let featureTileCount = 0;
+      for (let y = 0; y < selection.height; y++) {
+        for (let x = 0; x < selection.width; x++) {
+          const tileId = selection.grid[y]?.[x];
+          // Count tiles that are actual features (not -1 empty and not grass 0-2)
+          if (tileId !== undefined && tileId > 2) {
+            featureTileCount++;
+          }
+        }
+      }
+
+      // Show confirmation dialog
+      const message =
+        featureTileCount > 0
+          ? `Are you sure you want to clear ${featureTileCount} feature tile(s) in the selected area?`
+          : `No feature tiles to clear in the selected area. Clear anyway?`;
+
+      if (confirm(message)) {
+        // args of offset are in local space.
+        generators.clear.toolCall.invoke({
+          x: 0,
+          y: 0,
+          width: selection.width,
+          height: selection.height,
+        });
+      }
     }
   });
 
@@ -206,25 +282,8 @@ document.getElementById("loadMap")?.addEventListener("click", () => {
   fileInput.click();
 });
 
-const toggleBtn = document.getElementById(
-  "toggle-highlights",
-) as HTMLButtonElement;
 let highlightMode = false;
 let currentSelection: string | null = null;
-
-toggleBtn.textContent = "Enable Highlights";
-toggleBtn.addEventListener("click", () => {
-  const s = getScene();
-  highlightMode = !highlightMode;
-  toggleBtn.textContent = highlightMode
-    ? "Disable Highlights"
-    : "Enable Highlights";
-  if (!highlightMode) {
-    s.clearLayerHighlights();
-  } else {
-    updateHighlights();
-  }
-});
 
 function updateHighlights() {
   const scene = getScene() as any;
@@ -384,14 +443,6 @@ btnDeleteCancel.addEventListener("click", () => {
 
 const treeContainer = document.getElementById("layer-tree") as HTMLDivElement;
 treeContainer.classList.add("hidden");
-
-const toggleTreeBtn = document.getElementById(
-  "toggle-tree",
-) as HTMLButtonElement;
-toggleTreeBtn.addEventListener("click", () => {
-  const isHidden = treeContainer.classList.toggle("hidden");
-  toggleTreeBtn.textContent = isHidden ? "☰ Layers" : "✖ Close";
-});
 
 // Find a node by name in the tree
 function findNode(name: string, node: any): any | null {
@@ -591,9 +642,6 @@ window.addEventListener("layerCreated", () => {
 window.addEventListener("layerSelected", () => {
   if (highlightMode) updateHighlights();
 });
-console.log("wow1");
-console.log("wow2");
-
 window.addEventListener("layerRenamed", (e: Event) => {
   const { oldName, newName } = (e as CustomEvent).detail;
   console.log(`Layer renamed: ${oldName} → ${newName}`);
@@ -649,34 +697,106 @@ function getRandEmoji(): string {
   return emoji[Math.floor(Math.random() * emoji.length)];
 }
 
-// which tile is selected from the pallete
-console.log(
-  "stuff" + document.querySelectorAll<HTMLButtonElement>(".tile-button"),
-);
-document
-  .querySelectorAll<HTMLButtonElement>(".tile-button")
-  .forEach((button) => {
-    button.addEventListener("click", () => {
-      console.log("clicked");
+// Tab switching logic for the right panel
+function switchToTab(tabName: string) {
+  // Update tab button states
+  document
+    .querySelectorAll(".panel-tab")
+    .forEach((t) => t.classList.remove("active"));
+  const activeTab = document.getElementById(`tab-${tabName}`);
+  if (activeTab) activeTab.classList.add("active");
+
+  // Show/hide tab content
+  document.querySelectorAll(".tab-content").forEach((content) => {
+    content.classList.add("hidden");
+    content.classList.remove("active");
+  });
+
+  const targetPanel = document.getElementById(`${tabName}-panel`);
+  if (targetPanel) {
+    targetPanel.classList.remove("hidden");
+    targetPanel.classList.add("active");
+  }
+
+  // Set placing mode based on which tab is active
+  try {
+    const scene = getScene();
+    scene.setPlacingMode(tabName === "manual");
+  } catch (e) {
+    console.warn("Scene not ready for mode change:", e);
+  }
+}
+
+function initTabSwitching() {
+  const tabAi = document.getElementById("tab-ai");
+  const tabManual = document.getElementById("tab-manual");
+
+  if (tabAi) {
+    tabAi.onclick = () => switchToTab("ai");
+  }
+
+  if (tabManual) {
+    tabManual.onclick = () => switchToTab("manual");
+  }
+}
+
+// Tile selection in manual mode
+function initTileButtons() {
+  const buttons = document.querySelectorAll<HTMLButtonElement>(".tile-btn");
+
+  buttons.forEach((button) => {
+    button.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
       const idStr = button.getAttribute("data-tileid");
       const id = idStr ? parseInt(idStr, 10) : null;
+
       if (id !== null) {
-        const scene = getScene();
-        scene.setSelectedTileId(id);
-      } else {
-        console.error("Missing data-tileid on button:", button);
+        try {
+          const scene = getScene();
+          scene.setSelectedTileId(id);
+
+          // Update selected state visually
+          document
+            .querySelectorAll(".tile-btn")
+            .forEach((btn) => btn.classList.remove("selected"));
+          button.classList.add("selected");
+
+          // Update preview
+          const preview = document.getElementById("selected-tile-preview");
+          if (preview) {
+            const img = button.querySelector("img");
+            const title = button.getAttribute("title") || `Tile ${id}`;
+            preview.innerHTML = `<img src="${img?.src}" /> <span>${title} (ID: ${id})</span>`;
+          }
+        } catch (e) {
+          console.error("Could not set tile:", e);
+        }
       }
     });
   });
-
-const modeButton = document.getElementById("mode-selection");
-if (modeButton) {
-  const scene = getScene();
-  modeButton.textContent = `Mode: ${scene.isPlacingMode ? "Place" : "Select"}`;
-  modeButton.addEventListener("click", () => {
-    scene.isPlacingMode = !scene.isPlacingMode;
-    modeButton!.textContent = `Mode: ${scene.isPlacingMode ? "Place" : "Select"}`;
-  });
 }
 
-buildLayerTree();
+// Initialize UI components
+function initializeUI() {
+  initTabSwitching();
+  initTileButtons();
+
+  // Build layer tree after everything else is ready
+  try {
+    buildLayerTree();
+  } catch (e) {
+    console.warn("Could not build layer tree on load:", e);
+  }
+}
+
+// If document is already loaded, initialize immediately
+// Otherwise wait for load event
+if (document.readyState === "complete") {
+  initializeUI();
+} else {
+  window.addEventListener("load", () => {
+    initializeUI();
+  });
+}

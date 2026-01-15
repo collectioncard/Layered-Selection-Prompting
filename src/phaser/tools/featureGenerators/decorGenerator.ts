@@ -29,8 +29,8 @@ export class DecorGenerator implements FeatureGenerator {
     this.sceneGetter = sceneGetter;
   }
 
-  static DecorArgsSchema = z.object({
-    density: z.number().min(0).max(1), // unfortunately the .default() parameter does not seem to be supported.
+  static readonly DecorArgsSchema = z.object({
+    density: z.number().min(0).max(1).default(0.03),
     x: z.number().min(0).max(40).optional(),
     y: z.number().min(0).max(25).optional(),
     width: z.number().min(1).max(50).optional(),
@@ -50,25 +50,53 @@ export class DecorGenerator implements FeatureGenerator {
       }
 
       console.log("Adding decor with args: ", args);
-      let scene = this.sceneGetter();
+      const scene = this.sceneGetter();
       if (scene == null) {
         console.log("getSceneFailed");
-        return "Tool Failed, no reference to scene.";
+        return "Error: Tool Failed - No reference to scene.";
       }
-      let selection = scene.getSelection();
+
+      const selection = scene.getSelection();
+
+      if (selection.width === 0 || selection.height === 0) {
+        return "Error: No valid selection. Please select an area first.";
+      }
+
       try {
-        const result = this.generate(selection, { density });
+        const result = this.generate(selection, {
+          density,
+          x: args.x,
+          y: args.y,
+          width: args.width,
+          height: args.height,
+        });
         await scene.putFeatureAtSelection(result);
-        return result.description;
+
+        const areaWidth = args.width ?? selection.width;
+        const areaHeight = args.height ?? selection.height;
+        const startX = args.x ?? 0;
+        const startY = args.y ?? 0;
+
+        return (
+          `Decor placed successfully!\n` +
+          `- Area: ${areaWidth}x${areaHeight} tiles starting at local (${startX}, ${startY})\n` +
+          `- Density: ${(density * 100).toFixed(1)}%\n` +
+          `- ${result.description}`
+        );
       } catch (e) {
         console.error("putFeatureAtSelection failed:", e);
-        return `Failed to place decor: ${e}`;
+        return `Error: Failed to place decor - ${e instanceof Error ? e.message : "Unknown error"}`;
       }
     },
     {
       name: "randomDecor",
       schema: DecorGenerator.DecorArgsSchema,
-      description: `Adds decor to the map with a specified density (default is 0.05). Optional args: x, y, width, height. The placed decor is randomly selected from the following tiles:  ${Object.keys(DECOR_TILES).join(", ")}. \n The type of decor cannot be specified, it is randomly chosen from the available decor tiles. If the user asks for specific decor, place it manually using the add tool`,
+      description:
+        "Adds random decorative items (trees, bushes, mushrooms, objects) to the map. Parameters:\n" +
+        "- density: probability (0-1) of placing a decor on each tile (required)\n" +
+        "- x, y: local start position (optional, default 0,0)\n" +
+        "- width, height: area size (optional, uses selection size)\n" +
+        `Available decor types: ${Object.values(DECOR_TILES).join(", ")}`,
     },
   );
 

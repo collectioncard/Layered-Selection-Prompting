@@ -17,34 +17,88 @@ export class boxPlacer implements FeatureGenerator {
   toolCall = tool(
     async ({ x, y, width, height, tileID, filled = false }) => {
       console.log("Adding box at: ", x, y, tileID);
-      let scene = this.sceneGetter();
+      const scene = this.sceneGetter();
       if (scene == null) {
         console.log("getSceneFailed");
-        return "Tool Failed, no reference to scene.";
+        return "Error: Tool Failed - No reference to scene.";
       }
-      let selection = scene.getSelection();
+
+      const selection = scene.getSelection();
+
+      // Validate parameters
+      if (x < 0 || y < 0) {
+        return `Error: Starting position (${x}, ${y}) cannot be negative.`;
+      }
+
+      if (width < 1 || height < 1) {
+        return `Error: Width (${width}) and height (${height}) must be at least 1.`;
+      }
+
+      // Check if box fits within selection
+      if (x + width > selection.width || y + height > selection.height) {
+        return `Error: Box from (${x}, ${y}) with size ${width}x${height} exceeds selection bounds (${selection.width}x${selection.height}).`;
+      }
+
+      const tileNum = Number(tileID);
+      if (isNaN(tileNum) || tileNum < 0) {
+        return `Error: Invalid tile ID "${tileID}". Must be a positive number.`;
+      }
+
       try {
-        await scene.putFeatureAtSelection(
-          this.generate(selection, [x, y, width, height, tileID, filled]),
+        const result = this.generate(selection, [
+          x,
+          y,
+          width,
+          height,
+          tileID,
+          filled,
+        ]);
+        await scene.putFeatureAtSelection(result);
+
+        const tileName = scene.tileDictionary?.[tileNum] ?? `tile #${tileNum}`;
+        const tilesPlaced = filled
+          ? width * height
+          : width * 2 + height * 2 - 4;
+        const boxType = filled
+          ? "filled rectangle"
+          : "hollow rectangle (outline)";
+
+        return (
+          `Box placed successfully!\n` +
+          `- Position: (${x}, ${y}) to (${x + width - 1}, ${y + height - 1}) in local coordinates\n` +
+          `- Size: ${width}x${height} tiles\n` +
+          `- Type: ${boxType}\n` +
+          `- Tile: ${tileName} (ID: ${tileID})\n` +
+          `- Tiles placed: ${tilesPlaced}`
         );
-        return `placed box of ${tileID} at: ${[x, y]} with width: ${width} and height: ${height}`;
       } catch (e) {
         console.error("putFeatureAtSelection failed:", e);
-        return `Failed to place box`;
+        return `Error: Failed to place box - ${e instanceof Error ? e.message : "Unknown error"}`;
       }
     },
     {
       name: "box",
       schema: z.object({
-        x: z.number(),
-        y: z.number(),
-        width: z.number(),
-        height: z.number(),
-        tileID: z.string(),
-        filled: z.boolean().optional(),
+        x: z
+          .number()
+          .describe("X coordinate of top-left corner in local space"),
+        y: z
+          .number()
+          .describe("Y coordinate of top-left corner in local space"),
+        width: z.number().min(1).describe("Width of the box in tiles"),
+        height: z.number().min(1).describe("Height of the box in tiles"),
+        tileID: z.string().describe("The tile ID number to use (as string)"),
+        filled: z
+          .boolean()
+          .optional()
+          .describe(
+            "If true, fill the entire box. If false/omitted, draw only the outline.",
+          ),
       }),
       description:
-        "Adds box to the map at x,y with width and height, optionally filled. \n Can also be used to draw a vertical or horizontal line by setting width or height to 1.",
+        "Draws a rectangle of tiles. Can be filled or just an outline. " +
+        "For a horizontal line: use height=1. For a vertical line: use width=1. " +
+        "Set filled=true for solid rectangle, or omit/false for outline only.",
     },
   );
 

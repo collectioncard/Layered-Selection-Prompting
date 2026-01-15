@@ -12,6 +12,8 @@ var fenceX = 0;
 var fenceY = 0;
 var width = 0;
 var height = 0;
+var gatePosition = 0;
+var gateOnTop = false;
 const tileIDs: Record<number, number> = {
   0b1100: 44, // Top-left
   0b0110: 46, // Top-right
@@ -41,33 +43,44 @@ export class FullFenceGenerator implements FeatureGenerator {
       const scene = this.sceneGetter();
       if (!scene) {
         console.log("getSceneFailed");
-        return "Tool Failed: No reference to scene.";
+        return "Error: Tool Failed - No reference to scene.";
       }
 
       const selection = scene.getSelection();
 
+      // Validate minimum size for fence
+      const minRequiredSize = 3 + PADDING * 2;
+      if (
+        selection.width < minRequiredSize ||
+        selection.height < minRequiredSize
+      ) {
+        return `Error: Selection too small for fence. Minimum required: ${minRequiredSize}x${minRequiredSize} tiles.`;
+      }
+
       try {
-        await scene.putFeatureAtSelection(this.generate(selection, args));
+        const result = this.generate(selection, args);
+        await scene.putFeatureAtSelection(result);
+
         return (
-          "Fence added successfully. It starts at" +
-          fenceX +
-          "," +
-          fenceY +
-          ". It has a with width: " +
-          width +
-          " and height: " +
-          height
+          `Fence successfully placed!\n` +
+          `- Position: starts at local (${fenceX}, ${fenceY})\n` +
+          `- Size: ${width}x${height} tiles (width x height)\n` +
+          `- Gate: placed on ${gateOnTop ? "top" : "bottom"} edge at x=${gatePosition}\n` +
+          `- Corners: top-left (${fenceX}, ${fenceY}), bottom-right (${fenceX + width - 1}, ${fenceY + height - 1})`
         );
       } catch (e) {
         console.error("putFeatureAtSelection failed:", e);
-        return `Failed to place fence`;
+        return `Error: Failed to place fence - ${e instanceof Error ? e.message : "Unknown error"}`;
       }
     },
     {
       name: "fence",
       schema: fenceArgsSchema,
       description:
-        "Adds a complete fence around an area. Accepts optional width and height.",
+        "Adds a complete fence enclosure with a gate. Parameters:\n" +
+        "- width: fence width in tiles, min 3 (optional, random if not specified)\n" +
+        "- height: fence height in tiles, min 3 (optional, random if not specified)\n" +
+        "Gate is automatically placed randomly on top or bottom edge.",
     },
   );
 
@@ -103,7 +116,9 @@ export class FullFenceGenerator implements FeatureGenerator {
 
     // Add a gate
     const gateX = Phaser.Math.Between(fenceX + 1, fenceX + width - 2);
-    const gateY = Math.random() < 0.5 ? fenceY : fenceY + height - 1;
+    gateOnTop = Math.random() < 0.5;
+    const gateY = gateOnTop ? fenceY : fenceY + height - 1;
+    gatePosition = gateX;
     grid[gateY][gateX] = 69;
 
     return {
