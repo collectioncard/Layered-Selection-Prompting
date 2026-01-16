@@ -260,7 +260,7 @@ export class HouseGenerator implements FeatureGenerator {
         const result = this.generate(selection, adjustedArgs);
         const houseInfo = result.houseDetails;
 
-        await scene.putFeatureAtSelection(result);
+        const placementResult = await scene.putFeatureAtSelection(result);
 
         // Use the house details from the result
         const actualStyle =
@@ -276,10 +276,33 @@ export class HouseGenerator implements FeatureGenerator {
             ? `\n- Note: Position adjusted from (${args.x}, ${args.y}) to avoid overlap`
             : "";
 
+        // Check if placement was fully successful, partially successful, or failed
+        if (placementResult.placed === 0 && placementResult.total > 0) {
+          return (
+            `House placement failed!\n` +
+            `- Position: (${houseInfo.x}, ${houseInfo.y}) in local coordinates\n` +
+            `- Size: ${houseInfo.width}x${houseInfo.height} tiles\n` +
+            `- Reason: All ${placementResult.total} tiles were blocked by higher-priority existing tiles.\n` +
+            `- Suggestion: Use the clear tool first or choose a different location.`
+          );
+        } else if (placementResult.skipped > 0) {
+          return (
+            `House partially placed.\n` +
+            `- Position: (${houseInfo.x}, ${houseInfo.y}) in local coordinates\n` +
+            `- Size: ${houseInfo.width}x${houseInfo.height} tiles\n` +
+            `- Tiles placed: ${placementResult.placed}/${placementResult.total}\n` +
+            `- Tiles blocked: ${placementResult.skipped} (by higher-priority tiles)\n` +
+            `- Style: ${actualStyle} walls with ${actualRoof} roof\n` +
+            `- Warning: House may be incomplete or damaged` +
+            positionNote
+          );
+        }
+
         return (
           `House successfully placed!\n` +
           `- Position: (${houseInfo.x}, ${houseInfo.y}) in local coordinates\n` +
           `- Size: ${houseInfo.width}x${houseInfo.height} tiles (width x height)\n` +
+          `- Tiles placed: ${placementResult.placed}\n` +
           `- Style: ${actualStyle} walls with ${actualRoof} roof\n` +
           `- Windows: ${args?.windowCount ?? 0}\n` +
           `- Doors: ${args?.doorCount ?? 1}\n` +

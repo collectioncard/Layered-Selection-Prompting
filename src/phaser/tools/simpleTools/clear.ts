@@ -42,7 +42,11 @@ export class boxClear implements FeatureGenerator {
       console.log(selection);
       try {
         const result = this.generate(selection, [x, y, width, height]);
-        await scene.putFeatureAtSelection(result, false, true);
+        const placementResult = await scene.putFeatureAtSelection(
+          result,
+          false,
+          true,
+        );
 
         const tilesCleared = width * height;
 
@@ -50,7 +54,7 @@ export class boxClear implements FeatureGenerator {
           `Area cleared successfully!\n` +
           `- Position: (${x}, ${y}) to (${x + width - 1}, ${y + height - 1}) in local coordinates\n` +
           `- Size: ${width}x${height} tiles\n` +
-          `- Total tiles cleared: ${tilesCleared}`
+          `- Total tiles cleared: ${placementResult.placed > 0 ? placementResult.placed : tilesCleared}`
         );
       } catch (e) {
         console.error("putFeatureAtSelection failed:", e);

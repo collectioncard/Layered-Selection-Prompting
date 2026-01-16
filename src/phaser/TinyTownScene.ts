@@ -1349,12 +1349,14 @@ export class TinyTownScene extends Phaser.Scene {
     worldOverride = false,
     acceptneg = false,
     undoing = false,
-  ) {
+  ): Promise<{ placed: number; skipped: number; total: number }> {
     //console.groupCollapsed(`Placing: ${generatedData.name} (Override: ${worldOverride}, Undo: ${acceptneg}, AllowOverwrite: ${this.allowOverwriting})`);
 
     let startX = 0;
     let startY = 0;
     const changed: { x: number; y: number }[] = [];
+    let tilesToPlace = 0;
+    let tilesSkipped = 0;
 
     if (!worldOverride) {
       if (
@@ -1437,11 +1439,11 @@ export class TinyTownScene extends Phaser.Scene {
     if (!this.featureLayer) {
       console.error("Feature layer is missing, cannot place tiles.");
       // console.groupEnd();
-      return;
+      return { placed: 0, skipped: 0, total: 0 };
     }
     if (gridWidth === 0 || gridHeight === 0) {
       console.groupEnd();
-      return;
+      return { placed: 0, skipped: 0, total: 0 };
     }
 
     // Placement Logic
@@ -1462,6 +1464,16 @@ export class TinyTownScene extends Phaser.Scene {
         const newTileIndex = gridToPlace[yOffset]?.[xOffset];
         if (newTileIndex === undefined) {
           continue;
+        }
+
+        // Skip empty tiles (they don't count toward totals)
+        if (newTileIndex === -1 && !undoing) {
+          continue;
+        }
+
+        // Count this as a tile we want to place (unless it's -1)
+        if (newTileIndex >= 0 || (undoing && newTileIndex === -1)) {
+          tilesToPlace++;
         }
 
         // Clear
@@ -1552,6 +1564,11 @@ export class TinyTownScene extends Phaser.Scene {
                   changed.push({ x: placeX, y: placeY });
                   placedInLayer = true;
                   break; // Only place in one named layer
+                } else {
+                  // Blocked by priority
+                  tilesSkipped++;
+                  placedInLayer = true; // Mark as handled (skipped counts as handled)
+                  break;
                 }
               }
             }
@@ -1591,6 +1608,9 @@ export class TinyTownScene extends Phaser.Scene {
               }
             }
             changed.push({ x: placeX, y: placeY });
+          } else {
+            // Blocked by priority
+            tilesSkipped++;
           }
         } else {
           if (currentTileIndex === -1) {
@@ -1611,6 +1631,9 @@ export class TinyTownScene extends Phaser.Scene {
               }
             }
             changed.push({ x: placeX, y: placeY });
+          } else {
+            // Blocked by existing tile (overwriting disabled)
+            tilesSkipped++;
           }
         }
       }
@@ -1665,6 +1688,12 @@ export class TinyTownScene extends Phaser.Scene {
       }
       console.groupEnd();
     }
+
+    return {
+      placed: changed.length,
+      skipped: tilesSkipped,
+      total: tilesToPlace,
+    };
   }
 
   pruneBrokenTrees(changed?: { x: number; y: number }[]): void {

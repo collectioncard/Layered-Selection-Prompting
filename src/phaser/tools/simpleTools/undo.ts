@@ -32,7 +32,7 @@ export class FullUndo implements FeatureGenerator {
 
       // Restore to the state at the start of the turn
       try {
-        await scene.putFeatureAtSelection(
+        const placementResult = await scene.putFeatureAtSelection(
           scene.TurnStartData,
           true,
           true,
@@ -45,6 +45,7 @@ export class FullUndo implements FeatureGenerator {
         return (
           `Undo successful!\n` +
           `- All changes from this turn have been reverted.\n` +
+          `- Tiles restored: ${placementResult.placed}\n` +
           `- The map has been restored to its state before any tool calls were made.`
         );
       } catch (e) {

@@ -62,7 +62,7 @@ export class ForestGenerator implements FeatureGenerator {
 
       try {
         const result = this.generate(selection, args);
-        await scene.putFeatureAtSelection(result);
+        const placementResult = await scene.putFeatureAtSelection(result);
 
         // Count what was actually placed
         const width = args?.width ?? selection.width;
@@ -70,9 +70,30 @@ export class ForestGenerator implements FeatureGenerator {
         const startX = args?.x ?? 0;
         const startY = args?.y ?? 0;
 
+        // Check if placement was fully successful, partially successful, or failed
+        if (placementResult.placed === 0 && placementResult.total > 0) {
+          return (
+            `Forest placement failed!\n` +
+            `- Area: ${width}x${height} tiles starting at local (${startX}, ${startY})\n` +
+            `- Reason: All ${placementResult.total} tiles were blocked by higher-priority existing tiles.\n` +
+            `- Suggestion: Use the clear tool first or choose a different location.`
+          );
+        } else if (placementResult.skipped > 0) {
+          return (
+            `Forest partially placed.\n` +
+            `- Area: ${width}x${height} tiles starting at local (${startX}, ${startY})\n` +
+            `- Tiles placed: ${placementResult.placed}/${placementResult.total}\n` +
+            `- Tiles blocked: ${placementResult.skipped} (by higher-priority tiles)\n` +
+            `- Extra mushrooms: ${args?.mushrooms ?? 0}\n` +
+            `- Extra yellow trees: ${args?.yellowTrees ?? 0}\n` +
+            `- Extra green trees: ${args?.greenTrees ?? 0}`
+          );
+        }
+
         return (
           `Forest successfully placed!\n` +
           `- Area: ${width}x${height} tiles starting at local (${startX}, ${startY})\n` +
+          `- Tiles placed: ${placementResult.placed}\n` +
           `- Extra mushrooms placed: ${args?.mushrooms ?? 0}\n` +
           `- Extra yellow trees placed: ${args?.yellowTrees ?? 0}\n` +
           `- Extra green trees placed: ${args?.greenTrees ?? 0}\n` +

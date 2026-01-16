@@ -55,13 +55,34 @@ export class PartialFenceGenerator implements FeatureGenerator {
 
       try {
         const result = this.generate(selection, { edges });
-        await scene.putFeatureAtSelection(result);
+        const placementResult = await scene.putFeatureAtSelection(result);
+
+        // Check if placement was fully successful, partially successful, or failed
+        if (placementResult.placed === 0 && placementResult.total > 0) {
+          return (
+            `Partial fence placement failed!\n` +
+            `- Position: starts at local (${this.lastFenceX}, ${this.lastFenceY})\n` +
+            `- Reason: All ${placementResult.total} tiles were blocked by higher-priority existing tiles.\n` +
+            `- Suggestion: Use the clear tool first or choose a different location.`
+          );
+        } else if (placementResult.skipped > 0) {
+          return (
+            `Partial fence partially placed.\n` +
+            `- Position: starts at local (${this.lastFenceX}, ${this.lastFenceY})\n` +
+            `- Horizontal length: ${this.lastHorizontalLength} tiles\n` +
+            `- Vertical length: ${this.lastVerticalLength} tiles\n` +
+            `- Tiles placed: ${placementResult.placed}/${placementResult.total}\n` +
+            `- Tiles blocked: ${placementResult.skipped} (by higher-priority tiles)\n` +
+            `- Gate: placed on ${this.lastGateOnTop ? "top" : "bottom"} edge at x=${this.lastGateX}`
+          );
+        }
 
         return (
           `Partial fence placed successfully!\n` +
           `- Position: starts at local (${this.lastFenceX}, ${this.lastFenceY})\n` +
           `- Horizontal length: ${this.lastHorizontalLength} tiles\n` +
           `- Vertical length: ${this.lastVerticalLength} tiles\n` +
+          `- Tiles placed: ${placementResult.placed}\n` +
           `- Gate: placed on ${this.lastGateOnTop ? "top" : "bottom"} edge at x=${this.lastGateX}\n` +
           `- Note: This fence has an open right side.`
         );

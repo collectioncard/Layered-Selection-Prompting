@@ -59,12 +59,33 @@ export class FullFenceGenerator implements FeatureGenerator {
 
       try {
         const result = this.generate(selection, args);
-        await scene.putFeatureAtSelection(result);
+        const placementResult = await scene.putFeatureAtSelection(result);
+
+        // Check if placement was fully successful, partially successful, or failed
+        if (placementResult.placed === 0 && placementResult.total > 0) {
+          return (
+            `Fence placement failed!\n` +
+            `- Position: starts at local (${fenceX}, ${fenceY})\n` +
+            `- Size: ${width}x${height} tiles\n` +
+            `- Reason: All ${placementResult.total} tiles were blocked by higher-priority existing tiles.\n` +
+            `- Suggestion: Use the clear tool first or choose a different location.`
+          );
+        } else if (placementResult.skipped > 0) {
+          return (
+            `Fence partially placed.\n` +
+            `- Position: starts at local (${fenceX}, ${fenceY})\n` +
+            `- Size: ${width}x${height} tiles\n` +
+            `- Tiles placed: ${placementResult.placed}/${placementResult.total}\n` +
+            `- Tiles blocked: ${placementResult.skipped} (by higher-priority tiles)\n` +
+            `- Gate: placed on ${gateOnTop ? "top" : "bottom"} edge at x=${gatePosition}`
+          );
+        }
 
         return (
           `Fence successfully placed!\n` +
           `- Position: starts at local (${fenceX}, ${fenceY})\n` +
           `- Size: ${width}x${height} tiles (width x height)\n` +
+          `- Tiles placed: ${placementResult.placed}\n` +
           `- Gate: placed on ${gateOnTop ? "top" : "bottom"} edge at x=${gatePosition}\n` +
           `- Corners: top-left (${fenceX}, ${fenceY}), bottom-right (${fenceX + width - 1}, ${fenceY + height - 1})`
         );

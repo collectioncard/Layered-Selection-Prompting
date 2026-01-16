@@ -70,17 +70,37 @@ export class DecorGenerator implements FeatureGenerator {
           width: args.width,
           height: args.height,
         });
-        await scene.putFeatureAtSelection(result);
+        const placementResult = await scene.putFeatureAtSelection(result);
 
         const areaWidth = args.width ?? selection.width;
         const areaHeight = args.height ?? selection.height;
         const startX = args.x ?? 0;
         const startY = args.y ?? 0;
 
+        // Check if placement was fully successful, partially successful, or failed
+        if (placementResult.placed === 0 && placementResult.total > 0) {
+          return (
+            `Decor placement failed!\n` +
+            `- Area: ${areaWidth}x${areaHeight} tiles starting at local (${startX}, ${startY})\n` +
+            `- Reason: All ${placementResult.total} tiles were blocked by higher-priority existing tiles.\n` +
+            `- Suggestion: Use the clear tool first or choose a different location.`
+          );
+        } else if (placementResult.skipped > 0) {
+          return (
+            `Decor partially placed.\n` +
+            `- Area: ${areaWidth}x${areaHeight} tiles starting at local (${startX}, ${startY})\n` +
+            `- Density: ${(density * 100).toFixed(1)}%\n` +
+            `- Tiles placed: ${placementResult.placed}/${placementResult.total}\n` +
+            `- Tiles blocked: ${placementResult.skipped} (by higher-priority tiles)\n` +
+            `- ${result.description}`
+          );
+        }
+
         return (
           `Decor placed successfully!\n` +
           `- Area: ${areaWidth}x${areaHeight} tiles starting at local (${startX}, ${startY})\n` +
           `- Density: ${(density * 100).toFixed(1)}%\n` +
+          `- Tiles placed: ${placementResult.placed}\n` +
           `- ${result.description}`
         );
       } catch (e) {
