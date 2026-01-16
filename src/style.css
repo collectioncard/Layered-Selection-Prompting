@@ -271,6 +271,132 @@ body {
   color: #4ade80;
 }
 
+/* Markdown content styles */
+.chat-message-content {
+  display: inline;
+}
+
+.chat-message-content p {
+  margin: 0.5em 0;
+}
+
+.chat-message-content p:first-child {
+  margin-top: 0;
+}
+
+.chat-message-content p:last-child {
+  margin-bottom: 0;
+}
+
+.chat-message-content ul,
+.chat-message-content ol {
+  margin: 0.5em 0;
+  padding-left: 1.5em;
+}
+
+.chat-message-content li {
+  margin-bottom: 0.25em;
+  padding: 0;
+  background: none;
+  border-left: none;
+  border-radius: 0;
+}
+
+.chat-message-content code {
+  background-color: #2d3748;
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  font-family: "Courier New", Consolas, monospace;
+  font-size: 0.9em;
+  color: #f0e68c;
+}
+
+.chat-message-content pre {
+  background-color: #1f2937;
+  border: 1px solid #374151;
+  border-radius: 6px;
+  padding: 10px;
+  overflow-x: auto;
+  margin: 0.5em 0;
+}
+
+.chat-message-content pre code {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  font-size: 0.85em;
+  color: #e2e8f0;
+}
+
+.chat-message-content strong {
+  color: #4ade80;
+}
+
+.chat-message-content em {
+  color: #a78bfa;
+}
+
+.chat-message-content h1,
+.chat-message-content h2,
+.chat-message-content h3,
+.chat-message-content h4 {
+  margin: 0.5em 0 0.25em 0;
+  color: #4ade80;
+}
+
+.chat-message-content h1 {
+  font-size: 1.3em;
+}
+.chat-message-content h2 {
+  font-size: 1.2em;
+}
+.chat-message-content h3 {
+  font-size: 1.1em;
+}
+.chat-message-content h4 {
+  font-size: 1em;
+}
+
+.chat-message-content blockquote {
+  border-left: 3px solid #4ade80;
+  margin: 0.5em 0;
+  padding-left: 1em;
+  color: #9ca3af;
+}
+
+.chat-message-content a {
+  color: #60a5fa;
+  text-decoration: none;
+}
+
+.chat-message-content a:hover {
+  text-decoration: underline;
+}
+
+.chat-message-content hr {
+  border: none;
+  border-top: 1px solid #374151;
+  margin: 0.75em 0;
+}
+
+.chat-message-content table {
+  border-collapse: collapse;
+  margin: 0.5em 0;
+  width: 100%;
+}
+
+.chat-message-content th,
+.chat-message-content td {
+  border: 1px solid #374151;
+  padding: 0.4em 0.6em;
+  text-align: left;
+}
+
+.chat-message-content th {
+  background-color: #1f2937;
+  color: #4ade80;
+}
+
 #llm-chat-form {
   display: flex;
   padding: 12px;

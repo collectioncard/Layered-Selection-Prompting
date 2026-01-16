@@ -1,5 +1,6 @@
 import { getChatResponse } from "./apiConnector.ts";
 import { AIMessage, BaseMessage, HumanMessage } from "@langchain/core/messages";
+import { marked } from "marked";
 
 const chatHistoryList: Element = document.querySelector("#chat-history")!;
 const chatInputField: HTMLInputElement =
@@ -78,10 +79,19 @@ export function addChatMessage(chatMessage: BaseMessage): HTMLLIElement {
     }
   }
 
+  // Render markdown to HTML
+  const renderedContent = marked.parse(displayContent as string, {
+    async: false,
+  });
+
   //display message in chat box
   const messageItem = document.createElement("li");
-  messageItem.innerHTML = `<strong>${chatMessage.getType().toString().toLocaleUpperCase()}:</strong> ${displayContent}`;
-  messageItem.style.marginBottom = "10px";
+  const messageType = chatMessage.getType().toString().toLocaleUpperCase();
+  messageItem.innerHTML = `<strong>${messageType}:</strong> <div class="chat-message-content">${renderedContent}</div>`;
+  messageItem.classList.add(
+    "chat-message",
+    `chat-message-${messageType.toLowerCase()}`,
+  );
   chatHistoryList.appendChild(messageItem);
   return messageItem;
 }
