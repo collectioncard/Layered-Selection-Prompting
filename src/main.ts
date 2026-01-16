@@ -9,7 +9,7 @@ import {
 import { createNewAgent, registerTool } from "./modelChat/apiConnector.ts";
 
 //LLM Tools for registration
-import { DecorGenerator } from "./phaser/tools/featureGenerators/decorGenerator.ts";
+//import { DecorGenerator } from "./phaser/tools/featureGenerators/decorGenerator.ts";
 import { ForestGenerator } from "./phaser/tools/featureGenerators/forestGenerator.ts";
 import { HouseGenerator } from "./phaser/tools/featureGenerators/houseGenerator.ts";
 import { FullFenceGenerator } from "./phaser/tools/featureGenerators/fullFenceGenerator.ts";
@@ -37,7 +37,7 @@ let gameInstance: Phaser.Game = createGame(
 
 ////LLM Tool Registration and Initialization////
 const generators = {
-  //decor: new DecorGenerator(getScene),
+  //decor: new DecorGenerator(getScene), //Decor generator bad
   forest: new ForestGenerator(getScene),
   house: new HouseGenerator(getScene),
   full_fence: new FullFenceGenerator(getScene),
