@@ -535,6 +535,14 @@ export class TinyTownScene extends Phaser.Scene {
     this.isSelecting = false;
     this.collectSelectedTiles();
 
+    // Dispatch custom event for walkthrough
+    const selectionMade = new CustomEvent("selectionMade", {
+      detail: {
+        hasSelection: this.selectionStart && this.selectionEnd,
+      },
+    });
+    window.dispatchEvent(selectionMade);
+
     const selectedDescriptions = [];
     for (let tileID of this.selectedTileSet) {
       const description = this.tileDictionary[tileID];

@@ -677,3 +677,217 @@ button:focus-visible {
   outline: 2px solid #4ade80;
   outline-offset: 2px;
 }
+
+/* ===== WALKTHROUGH SYSTEM ===== */
+.walkthrough-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 9998;
+  pointer-events: auto;
+}
+
+.walkthrough-welcome-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #1f2937;
+  border: 2px solid #4ade80;
+  border-radius: 12px;
+  padding: 32px;
+  max-width: 500px;
+  width: 90%;
+  z-index: 9999;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.walkthrough-welcome-modal .walkthrough-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  font-size: 20px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 0;
+}
+
+.walkthrough-welcome-modal .walkthrough-close:hover {
+  background-color: #374151;
+  color: #d1d5db;
+}
+
+.walkthrough-welcome-modal .walkthrough-title {
+  margin: 0 0 16px 0;
+  color: #4ade80;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.walkthrough-welcome-modal .walkthrough-content {
+  margin: 0 0 24px 0;
+  color: #d1d5db;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.walkthrough-welcome-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.walkthrough-welcome-buttons button {
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  min-width: 100px;
+}
+
+.walkthrough-welcome-buttons .walkthrough-yes {
+  background-color: #4ade80;
+  color: #1a1a2e;
+  border-color: #4ade80;
+}
+
+.walkthrough-welcome-buttons .walkthrough-yes:hover {
+  background-color: #22c55e;
+  border-color: #22c55e;
+}
+
+.walkthrough-welcome-buttons .walkthrough-no {
+  background-color: #374151;
+  color: #d1d5db;
+}
+
+.walkthrough-tooltip {
+  position: fixed;
+  background-color: #1f2937;
+  border: 2px solid #4ade80;
+  border-radius: 8px;
+  padding: 20px;
+  max-width: 320px;
+  z-index: 9999;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  pointer-events: auto;
+}
+
+.walkthrough-tooltip::before {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 0;
+  border: 10px solid transparent;
+}
+
+/* Arrow positioning */
+.walkthrough-tooltip.arrow-top::before {
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-bottom-color: #4ade80;
+}
+
+.walkthrough-tooltip.arrow-bottom::before {
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-top-color: #4ade80;
+}
+
+.walkthrough-tooltip.arrow-left::before {
+  left: -20px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-right-color: #4ade80;
+}
+
+.walkthrough-tooltip.arrow-right::before {
+  right: -20px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-left-color: #4ade80;
+}
+
+.walkthrough-tooltip .walkthrough-tooltip-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  font-size: 18px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 0;
+}
+
+.walkthrough-tooltip .walkthrough-tooltip-close:hover {
+  background-color: #374151;
+  color: #d1d5db;
+}
+
+.walkthrough-tooltip .walkthrough-tooltip-title {
+  margin: 0 0 12px 0;
+  color: #4ade80;
+  font-size: 18px;
+  font-weight: 600;
+  padding-right: 24px;
+}
+
+.walkthrough-tooltip .walkthrough-tooltip-content {
+  margin: 0 0 16px 0;
+  color: #d1d5db;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.walkthrough-tooltip-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.walkthrough-tooltip-buttons button {
+  padding: 8px 16px;
+  font-size: 13px;
+  min-width: 80px;
+}
+
+.walkthrough-tooltip-buttons .walkthrough-tooltip-next {
+  background-color: #4ade80;
+  color: #1a1a2e;
+  border-color: #4ade80;
+}
+
+.walkthrough-tooltip-buttons .walkthrough-tooltip-next:hover {
+  background-color: #22c55e;
+  border-color: #22c55e;
+}
+
+.walkthrough-tooltip-buttons .walkthrough-tooltip-complete {
+  background-color: #4ade80;
+  color: #1a1a2e;
+  border-color: #4ade80;
+}
+
+.walkthrough-tooltip-buttons .walkthrough-tooltip-complete:hover {
+  background-color: #22c55e;
+  border-color: #22c55e;
+}

@@ -68,7 +68,7 @@
             <input
               type="text"
               id="llm-chat-input"
-              placeholder="Ask AI to build something..."
+              placeholder="Make a house in a glade"
             />
             <button type="submit" id="llm-chat-submit">Send</button>
           </form>
@@ -1000,6 +1000,34 @@
           <button id="btn-delete-with-assets">Remove Layer & Assets</button>
           <button id="btn-delete-cancel">Cancel</button>
         </div>
+      </div>
+    </div>
+
+    <!-- Walkthrough System -->
+    <div id="walkthrough-overlay" class="walkthrough-overlay hidden"></div>
+
+    <div
+      id="walkthrough-welcome-modal"
+      class="walkthrough-welcome-modal hidden"
+    >
+      <button class="walkthrough-close">✕</button>
+      <h2 class="walkthrough-title"></h2>
+      <p class="walkthrough-content"></p>
+      <div class="walkthrough-welcome-buttons">
+        <button class="walkthrough-yes">Yes</button>
+        <button class="walkthrough-no">No</button>
+      </div>
+    </div>
+
+    <div id="walkthrough-tooltip" class="walkthrough-tooltip hidden">
+      <button class="walkthrough-tooltip-close">✕</button>
+      <h3 class="walkthrough-tooltip-title"></h3>
+      <p class="walkthrough-tooltip-content"></p>
+      <div class="walkthrough-tooltip-buttons">
+        <button class="walkthrough-tooltip-next">Next</button>
+        <button class="walkthrough-tooltip-complete" style="display: none">
+          Complete Walkthrough
+        </button>
       </div>
     </div>
 

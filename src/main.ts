@@ -8,6 +8,9 @@ import {
 } from "./modelChat/chatbox.ts";
 import { createNewAgent, registerTool } from "./modelChat/apiConnector.ts";
 
+// Walkthrough System
+import { WalkthroughManager } from "./walkthrough/walkthrough.ts";
+
 //LLM Tools for registration
 //import { DecorGenerator } from "./phaser/tools/featureGenerators/decorGenerator.ts";
 import { ForestGenerator } from "./phaser/tools/featureGenerators/forestGenerator.ts";
@@ -158,6 +161,9 @@ document
           height: selection.height,
         });
       }
+
+      // Trigger walkthrough action
+      walkthroughManager.triggerAction("clear-tiles-click");
     }
   });
 
@@ -167,6 +173,8 @@ document.getElementById("clear-selection")?.addEventListener("click", () => {
   if (scene) {
     scene.clearSelection();
   }
+  // Trigger walkthrough action
+  walkthroughManager.triggerAction("clear-selection-click");
 });
 
 // Get selection button
@@ -714,6 +722,12 @@ function switchToTab(tabName: string) {
   } catch (e) {
     console.warn("Scene not ready for mode change:", e);
   }
+
+  // Trigger walkthrough step if manual tab is clicked during walkthrough
+  if (tabName === "manual" && walkthroughManager.isWalkthroughActive()) {
+    // Step 5 will be shown when manual tab is accessed
+    walkthroughManager.showStep(5);
+  }
 }
 
 function initTabSwitching() {
@@ -767,6 +781,9 @@ function initTileButtons() {
   });
 }
 
+// Initialize walkthrough system
+const walkthroughManager = new WalkthroughManager();
+
 // Initialize UI components
 function initializeUI() {
   initTabSwitching();
@@ -778,7 +795,21 @@ function initializeUI() {
   } catch (e) {
     console.warn("Could not build layer tree on load:", e);
   }
+
+  // Initialize walkthrough after UI is ready
+  setTimeout(() => {
+    if (walkthroughManager.shouldShowWalkthrough()) {
+      walkthroughManager.startWalkthrough();
+    }
+  }, 500);
 }
+
+// Listen for selection events for walkthrough
+window.addEventListener("selectionMade", () => {
+  if (walkthroughManager.isWalkthroughActive()) {
+    walkthroughManager.triggerAction("selection");
+  }
+});
 
 // If document is already loaded, initialize immediately
 // Otherwise wait for load event
