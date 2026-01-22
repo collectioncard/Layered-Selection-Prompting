@@ -12,6 +12,7 @@ import { createNewAgent, registerTool } from "./modelChat/apiConnector.ts";
 //import { DecorGenerator } from "./phaser/tools/featureGenerators/decorGenerator.ts";
 import { ForestGenerator } from "./phaser/tools/featureGenerators/forestGenerator.ts";
 import { HouseGenerator } from "./phaser/tools/featureGenerators/houseGenerator.ts";
+import { CastleGenerator } from "./phaser/tools/featureGenerators/castleGenerator.ts";
 import { FullFenceGenerator } from "./phaser/tools/featureGenerators/fullFenceGenerator.ts";
 import { PartialFenceGenerator } from "./phaser/tools/featureGenerators/partialFenceGenerator.ts";
 import { TilePlacer } from "./phaser/tools/simpleTools/placeTile.ts";
@@ -40,6 +41,7 @@ const generators = {
   //decor: new DecorGenerator(getScene), //Decor generator bad
   forest: new ForestGenerator(getScene),
   house: new HouseGenerator(getScene),
+  castle: new CastleGenerator(getScene),
   full_fence: new FullFenceGenerator(getScene),
   partial_fence: new PartialFenceGenerator(getScene),
   tile_placer: new TilePlacer(getScene),

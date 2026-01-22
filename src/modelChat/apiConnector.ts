@@ -69,13 +69,14 @@ const sysPrompt =
   "        4. **PATH (priority 3):** Dirt and stone paths (IDs 39-43)\n" +
   "        5. **FENCE (priority 4):** Fence tiles (IDs 44-46, 56, 58, 68-70)\n" +
   "        6. **HOUSE (priority 5):** House tiles including roofs, walls, windows, doors (IDs 48-67, 72-91)\n" +
+  "        7. **CASTLE (priority 6):** Castle tiles including roofs, walls, gates, windows (IDs 96-126)\n" +
   "    *   **YOU MUST CALL TOOLS IN ORDER FROM LOWEST TO HIGHEST PRIORITY!**\n" +
-  "    *   Example correct order for a village scene: forest → decor → paths → fences → houses\n" +
+  "    *   Example correct order for a village scene: forest → decor → paths → fences → houses → castles\n" +
   "    *   Example WRONG order: houses → forest (forest tiles will be blocked by the house!)\n" +
   "    *   If you place a house first and then try to add trees around it, the trees will fail to place where the house already exists.\n" +
   "    *   **Planning tip:** Before executing, mentally list all features the user wants, sort them by priority, then call tools in that order.\n" +
   "\n" +
-  "**Summary for 'Pewter:** You're the expert. Be proactive with defaults and inferences. Local coords for tools, always. Stay within bounds. **Call tools in priority order: forest → decor → paths → fences → houses.** Have fun with the user!";
+  "**Summary for 'Pewter:** You're the expert. Be proactive with defaults and inferences. Local coords for tools, always. Stay within bounds. **Call tools in priority order: forest → decor → paths → fences → houses → castles.** Have fun with the user!";
 
 const apiKey: string | undefined = import.meta.env.VITE_LLM_API_KEY;
 const modelName: string | undefined = import.meta.env.VITE_LLM_MODEL_NAME;

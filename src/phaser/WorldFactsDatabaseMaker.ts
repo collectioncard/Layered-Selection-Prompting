@@ -147,6 +147,23 @@ export class WorldFactsDatabaseMaker {
         sprout: [17],
       },
     },
+    {
+      name: "castle",
+      tileIDs: [
+        96, 97, 98, 99, 100, 101, 102, 103, 108, 109, 110, 111, 112, 120, 121,
+        122, 123, 124, 125, 126,
+      ],
+      features: {
+        gate: [111, 112, 123, 124],
+        window: [125],
+      },
+      substructures: {
+        roof: [
+          96, 97, 98, 99, 100, 101, 102, 103, 108, 109, 110, 120, 121, 122,
+        ],
+        wall: [126],
+      },
+    },
   ];
 
   DIRECTIONS: Direction[] = [

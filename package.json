@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:host": "vite --host",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "process-assets": "tile-extruder --tileWidth 16 --tileHeight 16 --margin 0 --spacing 0 --input ./phaserAssets/Tilemap_Packed.png --output ./phaserAssets/Tilemap_Extruded.png",

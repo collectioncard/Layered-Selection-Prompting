@@ -12,6 +12,7 @@ interface TinyTownSceneData {
 }
 
 const TILE_PRIORITY = {
+  CASTLE: 6,
   HOUSE: 5,
   FENCE: 4,
   PATH: 3,
@@ -1197,7 +1198,12 @@ export class TinyTownScene extends Phaser.Scene {
       return TILE_PRIORITY.EMPTY; // -1
     }
 
-    // House tiles (highest priority)
+    // Castle tiles (highest priority)
+    if (tileIndex >= 96 && tileIndex <= 126) {
+      return TILE_PRIORITY.CASTLE; // 6
+    }
+
+    // House tiles
     if (
       (tileIndex >= 48 && tileIndex <= 67) ||
       (tileIndex >= 72 && tileIndex <= 91)
