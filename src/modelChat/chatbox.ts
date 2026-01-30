@@ -68,7 +68,11 @@ export function addChatMessage(chatMessage: BaseMessage): HTMLLIElement {
   if (typeof displayContent === "object") {
     console.log("Detected object message in addChatMessage:", displayContent);
     //I think we can just assume that the first element is the message?
-    if (displayContent[0].type === "text") {
+    if (
+      Array.isArray(displayContent) &&
+      displayContent.length > 0 &&
+      displayContent[0].type === "text"
+    ) {
       displayContent =
         displayContent[0].text +
         "(+" +
