@@ -44,11 +44,20 @@ document
     try {
       botResponseEntry = await getChatResponse(chatHistory);
 
-      //Add all of the new responses from the bot to the chat
-      for (const message of botResponseEntry.messages.slice(
-        chatHistory.length,
-      )) {
-        addChatMessage(message);
+      if (!botResponseEntry?.messages) {
+        // getChatResponse returned a string error message
+        const msg =
+          typeof botResponseEntry === "string"
+            ? botResponseEntry
+            : "Error: Unexpected response format.";
+        addChatMessage(new AIMessage(msg));
+      } else {
+        //Add all of the new responses from the bot to the chat
+        for (const message of botResponseEntry.messages.slice(
+          chatHistory.length,
+        )) {
+          addChatMessage(message);
+        }
       }
     } catch (exception) {
       const errorMessage =
@@ -139,9 +148,19 @@ export async function sendSystemMessage(message: string): Promise<void> {
       systemMessage,
     ]);
 
-    //Add all of the new responses from the bot to the chat
-    for (const message of botResponseEntry.messages.slice(chatHistory.length)) {
-      addChatMessage(message);
+    if (!botResponseEntry?.messages) {
+      const msg =
+        typeof botResponseEntry === "string"
+          ? botResponseEntry
+          : "Error: Unexpected response format.";
+      addChatMessage(new AIMessage(msg));
+    } else {
+      //Add all of the new responses from the bot to the chat
+      for (const message of botResponseEntry.messages.slice(
+        chatHistory.length,
+      )) {
+        addChatMessage(message);
+      }
     }
   } catch (exception) {
     const errorMessage =

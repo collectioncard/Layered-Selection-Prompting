@@ -1,1 +1,5 @@
-npx lint-staged
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/h"
+
+# Use local binary to avoid global npx path issues on Windows/Git Bash.
+./node_modules/.bin/lint-staged

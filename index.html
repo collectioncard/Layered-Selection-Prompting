@@ -60,6 +60,14 @@
           >
             🎨 Manual Edit
           </button>
+          <button
+            type="button"
+            class="panel-tab"
+            data-tab="skills"
+            id="tab-skills"
+          >
+            📜 Skills
+          </button>
         </div>
 
         <div id="ai-panel" class="tab-content active">
@@ -979,6 +987,19 @@
             </details>
           </div>
         </div>
+
+        <div id="skills-panel" class="tab-content hidden">
+          <div class="skills-header">
+            <h3>Skills</h3>
+            <span id="skills-count" class="skills-count">0/0 active</span>
+          </div>
+          <p class="skills-description">
+            Teach the AI new design patterns by creating skills or adding
+            <code>.md</code> files to the <code>skills/</code> folder.
+          </p>
+          <button id="skills-add-btn" class="skills-add-btn">+ New Skill</button>
+          <div id="skills-list"></div>
+        </div>
       </aside>
     </main>
 
@@ -999,6 +1020,28 @@
           <button id="btn-delete-only">Remove Layer Only</button>
           <button id="btn-delete-with-assets">Remove Layer & Assets</button>
           <button id="btn-delete-cancel">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="skill-editor-overlay" class="skill-editor-overlay hidden">
+      <div class="skill-editor-modal">
+        <div class="skill-editor-header">
+          <h2 id="skill-editor-title">New Skill</h2>
+          <button id="skill-editor-close" class="skill-editor-close">&times;</button>
+        </div>
+        <div class="skill-editor-body">
+          <label for="skill-editor-name">Skill Name</label>
+          <input type="text" id="skill-editor-name" placeholder="e.g. Medieval Village" />
+          <label for="skill-editor-content">Skill Instructions (Markdown)</label>
+          <textarea id="skill-editor-content" placeholder="Describe the design patterns, rules, and conventions for this skill..."></textarea>
+        </div>
+        <div class="skill-editor-footer">
+          <button id="skill-editor-delete" class="skill-editor-btn danger hidden">Delete</button>
+          <div class="skill-editor-footer-right">
+            <button id="skill-editor-cancel" class="skill-editor-btn secondary">Cancel</button>
+            <button id="skill-editor-save" class="skill-editor-btn primary">Save Skill</button>
+          </div>
         </div>
       </div>
     </div>

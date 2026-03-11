@@ -29,6 +29,8 @@ import {
   GetMapInfoTool,
 } from "./phaser/tools/simpleTools/queryTools.ts";
 
+import { renderSkillsPanel, setOnSkillToggleCallback } from "./skills/skillManager.ts";
+
 ////////**** MAIN APP LOGIC ****////////
 
 //Phaser scene ref
@@ -64,6 +66,9 @@ Object.values(generators).forEach((generator) => {
 
 //Once all tools are registered, we can init the LLM
 createNewAgent();
+
+// Wire skill toggles to agent recreation (done here to avoid circular deps)
+setOnSkillToggleCallback(() => createNewAgent());
 
 // Set up the callback to mark new turns when user sends a message
 setMarkNewTurnCallback(() => {
@@ -719,6 +724,7 @@ function switchToTab(tabName: string) {
 function initTabSwitching() {
   const tabAi = document.getElementById("tab-ai");
   const tabManual = document.getElementById("tab-manual");
+  const tabSkills = document.getElementById("tab-skills");
 
   if (tabAi) {
     tabAi.onclick = () => switchToTab("ai");
@@ -726,6 +732,10 @@ function initTabSwitching() {
 
   if (tabManual) {
     tabManual.onclick = () => switchToTab("manual");
+  }
+
+  if (tabSkills) {
+    tabSkills.onclick = () => switchToTab("skills");
   }
 }
 
@@ -771,6 +781,7 @@ function initTileButtons() {
 function initializeUI() {
   initTabSwitching();
   initTileButtons();
+  renderSkillsPanel();
 
   // Build layer tree after everything else is ready
   try {
