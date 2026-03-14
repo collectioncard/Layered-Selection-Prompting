@@ -21,6 +21,7 @@
   "dependencies": {
     "@langchain/google-genai": "^2.1.6",
     "dotenv": "^16.5.0",
+    "fix": "^0.0.3",
     "langchain": "^1.2.6",
     "marked": "^15.0.8",
     "phaser": "^3.88.2",

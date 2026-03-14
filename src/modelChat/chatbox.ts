@@ -27,7 +27,7 @@ document
 
     const userInputField: HTMLInputElement =
       document.querySelector("#llm-chat-input")!;
-    var userMessage = userInputField.value.trim();
+    const userMessage = userInputField.value.trim();
     if (!userMessage) return;
     userInputField.value = "";
 
@@ -45,6 +45,12 @@ document
       botResponseEntry = await getChatResponse(chatHistory);
 
       //Add all of the new responses from the bot to the chat
+      if (!botResponseEntry || !Array.isArray(botResponseEntry.messages)) {
+        addChatMessage(
+          new AIMessage("Error: Pewter returned an invalid response."),
+        );
+        return;
+      }
       for (const message of botResponseEntry.messages.slice(
         chatHistory.length,
       )) {
@@ -140,6 +146,12 @@ export async function sendSystemMessage(message: string): Promise<void> {
     ]);
 
     //Add all of the new responses from the bot to the chat
+    if (!botResponseEntry || !Array.isArray(botResponseEntry.messages)) {
+      addChatMessage(
+        new AIMessage("Error: Pewter returned an invalid response."),
+      );
+      return;
+    }
     for (const message of botResponseEntry.messages.slice(chatHistory.length)) {
       addChatMessage(message);
     }

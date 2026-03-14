@@ -1,6 +1,14 @@
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { createAgent, ReactAgent } from "langchain";
 import { BaseMessage } from "@langchain/core/messages";
+import {
+  getApiKey,
+  getModelName,
+  setRuntimeCredentials,
+  clearRuntimeCredentials,
+} from "./apiKeyStore";
+import { loadSavedCredentials, promptForCredentials } from "./apiKeyModal";
+import { validateGeminiApiKey } from "./geminiValidation";
 
 const tileDefs = await fetch("../phaserAssets/Assets/TileDatabase.json").then(
   (response) => response.json(),
@@ -78,50 +86,97 @@ const sysPrompt =
   "\n" +
   "**Summary for 'Pewter:** You're the expert. Be proactive with defaults and inferences. Local coords for tools, always. Stay within bounds. **Call tools in priority order: forest → decor → paths → fences → houses → castles.** Have fun with the user!";
 
-const apiKey: string | undefined = import.meta.env.VITE_LLM_API_KEY;
-const modelName: string | undefined = import.meta.env.VITE_LLM_MODEL_NAME;
-if (!apiKey) throw new Error("Missing VITE_LLM_API_KEY in environment");
-if (!modelName) throw new Error("Missing VITE_LLM_MODEL_NAME in environment");
-
 const temperature = 0;
-let tools: any = [];
-
+let tools: any[] = [];
 let agent: ReactAgent | null = null;
-
-// We now only support using the agent provided by langchain instead of handling tool calls ourselves. Should be so much simpler.
-
-// this stores the references to the tool functions with their schemas
 
 export function registerTool(tool: any) {
   tools.push(tool);
   console.log("Tool registered: ", tool.name);
 }
 
-// Creates a new agent instance and binds that to the exported agent variable
-export function createNewAgent() {
+export async function ensureApiKey(): Promise<string | null> {
+  const existingKey = getApiKey();
+  if (existingKey) {
+    return existingKey;
+  }
+
+  const savedCredentials = loadSavedCredentials();
+  if (savedCredentials) {
+    const validation = await validateGeminiApiKey(
+      savedCredentials.apiKey,
+      savedCredentials.modelName,
+    );
+
+    if (validation.ok) {
+      setRuntimeCredentials(
+        savedCredentials.apiKey,
+        savedCredentials.modelName,
+      );
+      return savedCredentials.apiKey;
+    }
+  }
+
+  const enteredCredentials = await promptForCredentials();
+  if (!enteredCredentials) {
+    return null;
+  }
+
+  return enteredCredentials.apiKey;
+}
+
+export async function createNewAgent(): Promise<void> {
+  const apiKey = await ensureApiKey();
+
+  if (!apiKey) {
+    throw new Error("No API key provided. Pewter AI features remain disabled.");
+  }
+
   agent = createAgent({
     model: new ChatGoogleGenerativeAI({
-      model: modelName || "gemini-3-flash",
-      temperature: temperature,
-      apiKey: apiKey,
+      model: getModelName(),
+      temperature,
+      apiKey,
     }),
-    tools: tools,
+    tools,
     systemPrompt: sysPrompt,
   });
 }
+export async function reconfigureAgent(): Promise<void> {
+  agent = null;
+  clearRuntimeCredentials();
 
+  const credentials = await promptForCredentials();
+  if (!credentials) {
+    throw new Error("No credentials provided.");
+  }
+
+  agent = createAgent({
+    model: new ChatGoogleGenerativeAI({
+      model: credentials.modelName,
+      temperature,
+      apiKey: credentials.apiKey,
+    }),
+    tools,
+    systemPrompt: sysPrompt,
+  });
+}
 export async function getChatResponse(
   chatMessageHistory: BaseMessage[],
 ): Promise<any> {
   console.log("chatHistory:", chatMessageHistory);
 
   if (!agent) {
-    console.error("Agent not initialized. Call createNewAgent first.");
-    return "Error: Agent is not initialized.";
+    try {
+      await createNewAgent();
+    } catch (error) {
+      console.error("Agent initialization failed:", error);
+      return "Error: No valid API key was provided, so Pewter could not start.";
+    }
   }
 
   try {
-    return await agent.invoke({
+    return await agent!.invoke({
       messages: chatMessageHistory,
     });
   } catch (error) {

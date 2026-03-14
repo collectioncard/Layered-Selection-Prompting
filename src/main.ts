@@ -6,7 +6,11 @@ import {
   clearChatHistory,
   setMarkNewTurnCallback,
 } from "./modelChat/chatbox.ts";
-import { createNewAgent, registerTool } from "./modelChat/apiConnector.ts";
+import {
+  createNewAgent,
+  registerTool,
+  reconfigureAgent,
+} from "./modelChat/apiConnector.ts";
 
 //LLM Tools for registration
 //import { DecorGenerator } from "./phaser/tools/featureGenerators/decorGenerator.ts";
@@ -65,6 +69,19 @@ Object.values(generators).forEach((generator) => {
 //Once all tools are registered, we can init the LLM
 createNewAgent();
 
+// Allow user to change API key / model
+document
+  .getElementById("change-llm-settings")
+  ?.addEventListener("click", async () => {
+    try {
+      await reconfigureAgent();
+      clearChatHistory();
+      alert("LLM settings updated.");
+    } catch (error) {
+      console.error("Could not update LLM settings:", error);
+      alert("Failed to update LLM settings.");
+    }
+  });
 // Set up the callback to mark new turns when user sends a message
 setMarkNewTurnCallback(() => {
   try {
