@@ -1,6 +1,7 @@
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { createAgent, ReactAgent } from "langchain";
 import { BaseMessage } from "@langchain/core/messages";
+import { getEnabledSkillsPrompt } from "../skills/skillManager.ts";
 
 const tileDefs = await fetch("../phaserAssets/Assets/TileDatabase.json").then(
   (response) => response.json(),
@@ -99,6 +100,7 @@ export function registerTool(tool: any) {
 
 // Creates a new agent instance and binds that to the exported agent variable
 export function createNewAgent() {
+  const finalPrompt = sysPrompt + getEnabledSkillsPrompt();
   agent = createAgent({
     model: new ChatGoogleGenerativeAI({
       model: modelName || "gemini-3-flash",
@@ -106,7 +108,7 @@ export function createNewAgent() {
       apiKey: apiKey,
     }),
     tools: tools,
-    systemPrompt: sysPrompt,
+    systemPrompt: finalPrompt,
   });
 }
 

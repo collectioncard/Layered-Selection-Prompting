@@ -3,10 +3,12 @@ import { createGame, TinyTownScene } from "./phaser/TinyTownScene.ts";
 
 //LLM Management
 import {
+  addChatMessage,
   clearChatHistory,
   setMarkNewTurnCallback,
 } from "./modelChat/chatbox.ts";
 import { createNewAgent, registerTool } from "./modelChat/apiConnector.ts";
+import { AIMessage } from "@langchain/core/messages";
 
 //LLM Tools for registration
 //import { DecorGenerator } from "./phaser/tools/featureGenerators/decorGenerator.ts";
@@ -28,6 +30,8 @@ import {
   GetTileAtTool,
   GetMapInfoTool,
 } from "./phaser/tools/simpleTools/queryTools.ts";
+
+import { renderSkillsPanel, setOnSkillToggleCallback } from "./skills/skillManager.ts";
 
 ////////**** MAIN APP LOGIC ****////////
 
@@ -64,6 +68,13 @@ Object.values(generators).forEach((generator) => {
 
 //Once all tools are registered, we can init the LLM
 createNewAgent();
+
+// Wire skill toggles to agent recreation (done here to avoid circular deps)
+setOnSkillToggleCallback(() => {
+  createNewAgent();
+  clearChatHistory();
+  addChatMessage(new AIMessage("Skills changed — chat cleared to apply new settings."));
+});
 
 // Set up the callback to mark new turns when user sends a message
 setMarkNewTurnCallback(() => {
@@ -719,6 +730,7 @@ function switchToTab(tabName: string) {
 function initTabSwitching() {
   const tabAi = document.getElementById("tab-ai");
   const tabManual = document.getElementById("tab-manual");
+  const tabSkills = document.getElementById("tab-skills");
 
   if (tabAi) {
     tabAi.onclick = () => switchToTab("ai");
@@ -726,6 +738,10 @@ function initTabSwitching() {
 
   if (tabManual) {
     tabManual.onclick = () => switchToTab("manual");
+  }
+
+  if (tabSkills) {
+    tabSkills.onclick = () => switchToTab("skills");
   }
 }
 
@@ -771,6 +787,7 @@ function initTileButtons() {
 function initializeUI() {
   initTabSwitching();
   initTileButtons();
+  renderSkillsPanel();
 
   // Build layer tree after everything else is ready
   try {
