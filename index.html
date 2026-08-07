@@ -7,6 +7,47 @@
     <title>PEWTER - Procedural Environment Builder</title>
   </head>
   <body>
+    <div
+      id="token-gate"
+      class="token-gate"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="token-title"
+    >
+      <form id="token-form" class="token-dialog">
+        <h2 id="token-title">Connect the AI assistant</h2>
+        <p id="token-description">
+          Enter your Gemini settings to use Pewter's AI map designer.
+        </p>
+        <label for="api-token">API token</label>
+        <input
+          id="api-token"
+          name="api-token"
+          type="password"
+          autocomplete="off"
+          required
+        />
+        <label for="model-name">Model name</label>
+        <input
+          id="model-name"
+          name="model-name"
+          type="text"
+          value="gemini-3-flash-preview"
+          autocomplete="off"
+          spellcheck="false"
+          required
+        />
+        <label class="token-remember">
+          <input id="save-api-token" type="checkbox" />
+          Save these settings in this browser
+        </label>
+        <p id="token-error" class="token-error" role="alert" hidden></p>
+        <div class="token-actions">
+          <button id="cancel-ai-settings" type="button" hidden>Cancel</button>
+          <button id="connect-ai" type="submit">Verify &amp; connect</button>
+        </div>
+      </form>
+    </div>
     <header id="app-header">
       <div class="header-left">
         <span class="logo">🏘️</span>
@@ -16,6 +57,7 @@
         >
       </div>
       <div class="header-right">
+        <button id="open-ai-settings" class="header-btn">⚙ AI Settings</button>
         <button id="saveMap" class="header-btn">💾 Save</button>
         <button id="loadMap" class="header-btn">📂 Load</button>
       </div>

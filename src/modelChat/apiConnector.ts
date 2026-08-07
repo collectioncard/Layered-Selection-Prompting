@@ -78,11 +78,6 @@ const sysPrompt =
   "\n" +
   "**Summary for 'Pewter:** You're the expert. Be proactive with defaults and inferences. Local coords for tools, always. Stay within bounds. **Call tools in priority order: forest → decor → paths → fences → houses → castles.** Have fun with the user!";
 
-const apiKey: string | undefined = import.meta.env.VITE_LLM_API_KEY;
-const modelName: string | undefined = import.meta.env.VITE_LLM_MODEL_NAME;
-if (!apiKey) throw new Error("Missing VITE_LLM_API_KEY in environment");
-if (!modelName) throw new Error("Missing VITE_LLM_MODEL_NAME in environment");
-
 const temperature = 0;
 let tools: any = [];
 
@@ -98,10 +93,17 @@ export function registerTool(tool: any) {
 }
 
 // Creates a new agent instance and binds that to the exported agent variable
-export function createNewAgent() {
+export function createNewAgent(apiKey: string, modelName: string) {
+  if (!apiKey.trim()) {
+    throw new Error("An API token is required to start the AI assistant.");
+  }
+  if (!modelName.trim()) {
+    throw new Error("A model name is required to start the AI assistant.");
+  }
+
   agent = createAgent({
     model: new ChatGoogleGenerativeAI({
-      model: modelName || "gemini-3-flash",
+      model: modelName,
       temperature: temperature,
       apiKey: apiKey,
     }),
@@ -109,6 +111,8 @@ export function createNewAgent() {
     systemPrompt: sysPrompt,
   });
 }
+
+const LLM_TIMEOUT_MS = 2 * 60 * 1000;
 
 export async function getChatResponse(
   chatMessageHistory: BaseMessage[],
@@ -120,12 +124,28 @@ export async function getChatResponse(
     return "Error: Agent is not initialized.";
   }
 
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
   try {
-    return await agent.invoke({
+    const timeoutPromise = new Promise((_, reject) => {
+      timeoutId = setTimeout(() => {
+        reject(
+          new Error(
+            "Request timed out after 2 minutes. The AI took too long to respond.",
+          ),
+        );
+      }, LLM_TIMEOUT_MS);
+    });
+
+    const responsePromise = agent.invoke({
       messages: chatMessageHistory,
     });
+
+    return await Promise.race([responsePromise, timeoutPromise]);
   } catch (error) {
     console.error("Agent Error:", error);
-    return "Error: There was an issue processing your request.";
+    throw error;
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
   }
 }

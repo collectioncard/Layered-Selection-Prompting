@@ -62,8 +62,142 @@ Object.values(generators).forEach((generator) => {
   }
 });
 
-//Once all tools are registered, we can init the LLM
-createNewAgent();
+// Once all tools are registered, initialize the AI after the visitor supplies a token.
+const TOKEN_STORAGE_KEY = "pewter-gemini-api-token";
+const MODEL_STORAGE_KEY = "pewter-gemini-model-name";
+const DEFAULT_MODEL_NAME = "gemini-3-flash-preview";
+const tokenGate = document.querySelector<HTMLDivElement>("#token-gate")!;
+const tokenForm = document.querySelector<HTMLFormElement>("#token-form")!;
+const tokenInput = document.querySelector<HTMLInputElement>("#api-token")!;
+const modelInput = document.querySelector<HTMLInputElement>("#model-name")!;
+const saveTokenInput =
+  document.querySelector<HTMLInputElement>("#save-api-token")!;
+const tokenError =
+  document.querySelector<HTMLParagraphElement>("#token-error")!;
+const connectButton =
+  document.querySelector<HTMLButtonElement>("#connect-ai")!;
+const cancelSettingsButton =
+  document.querySelector<HTMLButtonElement>("#cancel-ai-settings")!;
+const openSettingsButton =
+  document.querySelector<HTMLButtonElement>("#open-ai-settings")!;
+const tokenTitle = document.querySelector<HTMLHeadingElement>("#token-title")!;
+const tokenDescription =
+  document.querySelector<HTMLParagraphElement>("#token-description")!;
+
+let currentApiToken = "";
+let currentModelName = DEFAULT_MODEL_NAME;
+
+function normalizeModelName(modelName: string): string {
+  return modelName.trim().replace(/^models\//, "");
+}
+
+async function verifyGeminiConfiguration(
+  apiToken: string,
+  modelName: string,
+): Promise<void> {
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelName)}`,
+    { headers: { "x-goog-api-key": apiToken } },
+  );
+  const result = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    const apiMessage = result?.error?.message;
+    throw new Error(
+      apiMessage ||
+        "Gemini rejected this token or model name. Please check both and try again.",
+    );
+  }
+
+  if (
+    Array.isArray(result?.supportedGenerationMethods) &&
+    !result.supportedGenerationMethods.includes("generateContent")
+  ) {
+    throw new Error("This model does not support chat content generation.");
+  }
+}
+
+async function startAssistant(
+  apiToken: string,
+  requestedModelName: string,
+  rememberSettings: boolean,
+): Promise<void> {
+  const modelName = normalizeModelName(requestedModelName);
+  connectButton.disabled = true;
+  cancelSettingsButton.disabled = true;
+  connectButton.textContent = "Verifying…";
+  tokenError.hidden = true;
+
+  try {
+    if (!apiToken) throw new Error("Enter a Gemini API token.");
+    if (!modelName) throw new Error("Enter a Gemini model name.");
+
+    await verifyGeminiConfiguration(apiToken, modelName);
+    createNewAgent(apiToken, modelName);
+    currentApiToken = apiToken;
+    currentModelName = modelName;
+
+    if (rememberSettings) {
+      localStorage.setItem(TOKEN_STORAGE_KEY, apiToken);
+      localStorage.setItem(MODEL_STORAGE_KEY, modelName);
+    } else {
+      localStorage.removeItem(TOKEN_STORAGE_KEY);
+      localStorage.removeItem(MODEL_STORAGE_KEY);
+    }
+
+    tokenGate.hidden = true;
+  } catch (error) {
+    tokenError.textContent =
+      error instanceof Error
+        ? error.message
+        : "Unable to verify the Gemini settings.";
+    tokenError.hidden = false;
+  } finally {
+    connectButton.disabled = false;
+    cancelSettingsButton.disabled = false;
+    connectButton.textContent = "Verify & connect";
+  }
+}
+
+tokenForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  void startAssistant(
+    tokenInput.value.trim(),
+    modelInput.value,
+    saveTokenInput.checked,
+  );
+});
+
+openSettingsButton.addEventListener("click", () => {
+  tokenTitle.textContent = "AI Settings";
+  tokenDescription.textContent =
+    "Change the Gemini API token or model used by Pewter.";
+  tokenInput.value = currentApiToken;
+  modelInput.value = currentModelName;
+  saveTokenInput.checked = localStorage.getItem(TOKEN_STORAGE_KEY) !== null;
+  cancelSettingsButton.hidden = false;
+  tokenError.hidden = true;
+  tokenGate.hidden = false;
+  tokenInput.focus();
+});
+
+cancelSettingsButton.addEventListener("click", () => {
+  tokenGate.hidden = true;
+  tokenError.hidden = true;
+});
+
+const savedToken = localStorage.getItem(TOKEN_STORAGE_KEY);
+const savedModelName =
+  localStorage.getItem(MODEL_STORAGE_KEY) || DEFAULT_MODEL_NAME;
+if (savedToken) {
+  tokenInput.value = savedToken;
+  modelInput.value = savedModelName;
+  saveTokenInput.checked = true;
+  void startAssistant(savedToken, savedModelName, true);
+} else {
+  cancelSettingsButton.hidden = true;
+  tokenInput.focus();
+}
 
 // Set up the callback to mark new turns when user sends a message
 setMarkNewTurnCallback(() => {

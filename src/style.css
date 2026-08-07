@@ -25,6 +25,86 @@ body {
   overflow-x: auto;
 }
 
+/* ===== TOKEN GATE ===== */
+.token-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(7, 10, 22, 0.88);
+  backdrop-filter: blur(4px);
+}
+
+.token-gate[hidden] {
+  display: none;
+}
+
+.token-dialog {
+  display: flex;
+  width: min(100%, 420px);
+  flex-direction: column;
+  gap: 12px;
+  padding: 28px;
+  border: 1px solid #2d4a3e;
+  border-radius: 12px;
+  background: #1a1a2e;
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.45);
+}
+
+.token-dialog h2,
+.token-dialog p {
+  margin: 0;
+}
+
+.token-dialog h2 {
+  color: #4ade80;
+}
+
+.token-dialog p,
+.token-dialog label {
+  color: #d1d5db;
+}
+
+.token-dialog input[type="password"],
+.token-dialog input[type="text"] {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #374151;
+  border-radius: 6px;
+  background: #0f0f1a;
+  color: #fff;
+  font: inherit;
+}
+
+.token-dialog input:focus {
+  border-color: #4ade80;
+  outline: 2px solid rgba(74, 222, 128, 0.2);
+}
+
+.token-remember {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.token-error {
+  color: #fca5a5 !important;
+  font-size: 13px;
+}
+
+.token-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.token-actions button[type="button"] {
+  background: transparent;
+}
+
 /* ===== HEADER ===== */
 #app-header {
   display: flex;
