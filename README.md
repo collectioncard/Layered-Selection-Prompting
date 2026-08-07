@@ -13,3 +13,4 @@ You will need to have [Node.js and NPM](https://docs.npmjs.com/downloading-and-i
 Next make a `.env` file in the project's root directory, following the `.env.example`'s instructions. After, launch the app with:
 
 `npm run dev`
+test
